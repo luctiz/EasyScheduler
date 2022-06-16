@@ -15,6 +15,7 @@ class EquipoTest {
         usuario3 =new Usuario(nombreUsuario: "usuario3", contraseña: "123")
     }
 
+
     @Test
     void CrearEquipoValido() {
         def equipoNuevo = usuario.crearNuevoEquipo("trabajo")
@@ -160,4 +161,5 @@ class EquipoTest {
         tarea.setAsignado(usuario, usuario2)
         assert(tarea.getAsignado() == usuario2)
     }
+
 }

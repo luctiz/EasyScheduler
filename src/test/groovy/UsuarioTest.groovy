@@ -29,4 +29,13 @@ class UsuarioTest {
         }
 
     }
+
+    @Test
+    void UsuarioNuevoTieneEquipoPrivadoPersonal(){
+        var usuario = new Usuario(
+                nombreUsuario: "usuario",
+                contraseña: "123"
+        )
+        assert(usuario.getEquipoPrivado().getNombre() == "Privado")
+    }
 }
