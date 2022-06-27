@@ -1,3 +1,4 @@
+import Modelos.Usuario
 import groovy.test.NotYetImplemented
 import org.junit.jupiter.api.Test
 import groovy.test.GroovyAssert;

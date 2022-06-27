@@ -1,4 +1,0 @@
-enum Estado {
-    Pendiente,
-    Completado
-}

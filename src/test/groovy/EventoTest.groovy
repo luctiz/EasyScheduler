@@ -1,3 +1,7 @@
+import Modelos.Equipo
+import Modelos.Evento
+import Modelos.Usuario
+import Servicios.DuplicarEvento
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import groovy.test.GroovyAssert
@@ -15,7 +19,7 @@ class EventoTest {
     void setUp() {
         usuario = new Usuario(nombreUsuario:  "user1", contraseña:  "pass")
         equipo = usuario.getEquipoPrivado()
-        fecha = new LocalDate(2022,07,01)
+        fecha = LocalDate.parse("2022-07-01")
         evento = new Evento("evento", fecha, equipo, usuario)
     }
 

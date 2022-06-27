@@ -1,3 +1,8 @@
+import Modelos.Equipo
+import Modelos.Estado
+import Modelos.Evento
+import Modelos.Tarea
+import Modelos.Usuario
 import groovy.test.GroovyAssert
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
