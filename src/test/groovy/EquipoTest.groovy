@@ -2,46 +2,63 @@ import Controladores.EquipoController
 import Controladores.UsuarioController
 import Modelos.Evento
 import Modelos.Usuario
+import Repositorios.EquipoRepository
+import Repositorios.UsuarioRepository
 import Servicios.EquipoService
 import Servicios.UsuarioService
+import com.fasterxml.jackson.databind.ObjectMapper
 import groovy.test.GroovyAssert
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import org.mockito.Mockito
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest
+import org.springframework.boot.test.mock.mockito.MockBean
 import org.springframework.test.context.ContextConfiguration
 import org.springframework.test.context.web.WebAppConfiguration
+import org.springframework.test.web.servlet.MockMvc
 
 import java.time.LocalDate
 import java.time.LocalTime
 
 
-@ContextConfiguration(classes = [EquipoController.class, UsuarioController.class])
+@ContextConfiguration(classes = [UsuarioService.class, EquipoService.class])
 @WebAppConfiguration
+@WebMvcTest(EquipoController.class)
 class EquipoTest {
 
-    static def usuario
-    static def usuario2
-    static def usuario3
 
 
+    @Autowired
+    MockMvc mockMvc
+    @Autowired
+    ObjectMapper mapper
+    @MockBean
+    EquipoRepository equipoRepository
+    @MockBean
+    UsuarioRepository usuarioRepository
     @Autowired
     static EquipoService equipoService
-
     @Autowired
     static UsuarioService usuarioService
+
+    static def usuario = new Usuario(NombreUsuario:  "user1", Contraseña:  "pass")
+    static def usuario2 = new Usuario(NombreUsuario: "usuario2", Contraseña: "123")
+    static def usuario3 = new Usuario(NombreUsuario: "usuario3", Contraseña: "123")
 
 
     @BeforeAll
     static void setUp() {
-        usuario = usuarioService.crearUsuario(new Usuario(NombreUsuario:  "user1", Contraseña:  "pass"))
-        usuario2 = usuarioService.crearUsuario(new Usuario(NombreUsuario: "usuario2", Contraseña: "123"))
-        usuario3 = usuarioService.crearUsuario(new Usuario(NombreUsuario: "usuario3", Contraseña: "123"))
+//        usuario = usuarioService.crearUsuario()
+//        usuario2 = usuarioService.crearUsuario()
+//        usuario3 = usuarioService.crearUsuario()
     }
 
 
     @Test
     void CrearEquipoValido() {
+        Mockito.when(usuarioRepository.findByNombreUsuario())
         def equipoNuevo = usuarioService.crearNuevoEquipo("trabajo", usuario)
 
         assert(equipoNuevo.getNombre() == "trabajo")

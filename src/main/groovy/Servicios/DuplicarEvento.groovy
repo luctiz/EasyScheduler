@@ -1,12 +1,10 @@
-<<<<<<< Updated upstream:src/main/groovy/DuplicarEvento.groovy
-=======
 package Servicios
 
 import Modelos.Equipo
 import Modelos.Evento
 import Modelos.Usuario
 
->>>>>>> Stashed changes:src/main/groovy/Servicios/DuplicarEvento.groovy
+
 import java.time.LocalDate
 
 class DuplicarEvento {

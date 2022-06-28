@@ -1,9 +1,7 @@
 package Controladores
 
 import Modelos.Equipo
-import Modelos.Usuario
 import Servicios.EquipoService
-import org.apache.logging.log4j.Logger
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.PatchMapping
@@ -27,8 +25,8 @@ class EquipoController extends ApiControllerBase {
 
     @PatchMapping("/equipo/agregarMiembro")
     @ResponseStatus(HttpStatus.ACCEPTED)
-    Equipo agregarMiembro(@RequestBody Equipo equipo, String nombreUsuario) throws Throwable {
-        def equipo_actualizado = service.agregarMiembro(equipo, nombreUsuario)
+    Equipo agregarMiembro(@RequestBody Equipo equipo, String NombreUsuario) throws Throwable {
+        def equipo_actualizado = service.agregarMiembro(equipo, NombreUsuario)
         return updated(equipo_actualizado)
 
     }
