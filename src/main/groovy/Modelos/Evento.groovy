@@ -10,10 +10,10 @@ class Evento {
     String Nombre
     String NombreFecha
     LocalDate Fecha
-    Equipo Equipo
+    String Equipo
     Tarea[] tareas = []
 
-    Evento(nombre, fecha, equipo, Usuario usuario) {
+    Evento(nombre, fecha, equipo, String usuario) {
         Nombre = nombre
         if (fecha < LocalDate.now()) {
             // log
@@ -28,7 +28,7 @@ class Evento {
         }
     }
 
-    Tarea addTarea(id, nombreTarea, horaInicio, horaFin, asignado, Usuario creador, peso = 1) {
+    Tarea addTarea(id, nombreTarea, horaInicio, horaFin, asignado, String creador, peso = 1) {
         if (creador != this.Equipo.lider) {
             // log
             throw new UsuarioNoEsLiderException()

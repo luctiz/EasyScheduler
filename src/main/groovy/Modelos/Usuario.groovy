@@ -3,10 +3,14 @@ package Modelos
 import org.springframework.data.mongodb.core.mapping.Document
 
 @Document("usuarios")
-class Usuario {
+class Usuario extends Entity {
     String NombreUsuario
     String Contraseña
-    Equipo EquipoPrivado
-    Equipo[] equipos = []
+    Equipo[] Equipos = []
+
+    Usuario(String nombreUsuario, String contraseña) {
+        NombreUsuario = nombreUsuario
+        Contraseña = contraseña
+    }
 
 }

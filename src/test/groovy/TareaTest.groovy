@@ -12,24 +12,24 @@ import java.time.LocalTime
 
 class TareaTest {
 
-    LocalTime horaInicio;
-    LocalTime horaIFin;
-    Usuario usuario
+    LocalTime horaInicio
+    LocalTime horaIFin
+    String usuario
     Evento evento
     Equipo equipo
 
     @BeforeEach
     void TestSetup() {
-        horaInicio = new LocalTime(21,20,13, 1)
-        horaIFin = new LocalTime(22,20,12, 1)
+        horaInicio = LocalTime.parse("22:20:13.1")
+        horaIFin = LocalTime.parse("21:20:12.1")
         usuario = new Usuario(
-                nombreUsuario: "user1",
-                contraseña: "pass"
+                "user1",
+                "pass"
         )
         equipo = usuario.getEquipoPrivado()
         evento = new Evento(
                 "evento1",
-                new LocalDate(2022, 07, 1),
+                LocalDate.parse("2022-07-1"),
                 equipo,
                 usuario
         )
@@ -43,8 +43,7 @@ class TareaTest {
                 "tarea",
                 horaInicio,
                 horaIFin,
-                usuario,
-                evento
+                usuario
         )
         assert tarea.Nombre == "tarea"
         assert tarea.HoraFin == horaIFin
@@ -60,10 +59,9 @@ class TareaTest {
             def tarea = new Tarea(
                     1,
                     "tarea",
-                    new LocalTime(22,20,13, 1),
-                    new LocalTime(21,20,12, 1),
-                    usuario,
-                    evento
+                    LocalTime.parse("22:20:13.1"),
+                    LocalTime.parse("21:20:12.1"),
+                    usuario
             )
         }
     }
@@ -77,8 +75,7 @@ class TareaTest {
                     horaInicio,
                     horaIFin,
                     usuario,
-                    evento,
-                            - 1
+                    - 1
             )
         }
     }
@@ -100,8 +97,8 @@ class TareaTest {
     @Test
     void CompletarTareaNoAsignadaEsInvalido() {
         def usuario2 = new Usuario(
-                nombreUsuario: "user2",
-                contraseña: "pass"
+                "user2",
+                "pass"
         )
         def tarea = new Tarea(
                 1,

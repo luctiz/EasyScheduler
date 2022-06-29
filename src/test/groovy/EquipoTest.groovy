@@ -1,5 +1,5 @@
 import Controladores.EquipoController
-import Controladores.UsuarioController
+import Modelos.Equipo
 import Modelos.Evento
 import Modelos.Usuario
 import Repositorios.EquipoRepository
@@ -9,7 +9,6 @@ import Servicios.UsuarioService
 import com.fasterxml.jackson.databind.ObjectMapper
 import groovy.test.GroovyAssert
 import org.junit.jupiter.api.BeforeAll
-import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.mockito.Mockito
 import org.springframework.beans.factory.annotation.Autowired
@@ -23,55 +22,56 @@ import java.time.LocalDate
 import java.time.LocalTime
 
 
-@ContextConfiguration(classes = [UsuarioService.class, EquipoService.class])
-@WebAppConfiguration
-@WebMvcTest(EquipoController.class)
 class EquipoTest {
 
+    private static UsuarioRepository usuarioRepository
+    private static EquipoService equipoService
+    private static UsuarioService usuarioService
 
-
-    @Autowired
-    MockMvc mockMvc
-    @Autowired
-    ObjectMapper mapper
-    @MockBean
-    EquipoRepository equipoRepository
-    @MockBean
-    UsuarioRepository usuarioRepository
-    @Autowired
-    static EquipoService equipoService
-    @Autowired
-    static UsuarioService usuarioService
-
-    static def usuario = new Usuario(NombreUsuario:  "user1", Contraseña:  "pass")
-    static def usuario2 = new Usuario(NombreUsuario: "usuario2", Contraseña: "123")
-    static def usuario3 = new Usuario(NombreUsuario: "usuario3", Contraseña: "123")
+    static def usuario = new Usuario( "user12",  "pass")
+    static def usuario2 = new Usuario("usuario2", "123")
+    static def usuario3 = new Usuario("usuario3", "123")
 
 
     @BeforeAll
     static void setUp() {
-//        usuario = usuarioService.crearUsuario()
-//        usuario2 = usuarioService.crearUsuario()
-//        usuario3 = usuarioService.crearUsuario()
+        usuarioRepository = Mockito.mock(UsuarioRepository.class)
+        usuarioService = new UsuarioService(usuarioRepository:  usuarioRepository, equipoService: equipoService)
+        equipoService = new EquipoService(usuarioRepository: usuarioRepository, usuarioService: usuarioService)
+        // de nuevo porque equipoService es null primero
+        usuarioService = new UsuarioService(usuarioRepository:  usuarioRepository, equipoService: equipoService)
+        Mockito.when(usuarioRepository.save(usuario)).thenReturn(usuario)
+        Mockito.when(usuarioRepository.save(usuario2)).thenReturn(usuario2)
+        Mockito.when(usuarioRepository.save(usuario3)).thenReturn(usuario3)
+        usuario = usuarioService.crearUsuario(usuario)
+        Mockito.when(usuarioRepository.findByNombreUsuario(usuario.NombreUsuario)).thenReturn(usuario)
+        usuario2 = usuarioService.crearUsuario(usuario2)
+        Mockito.when(usuarioRepository.findByNombreUsuario(usuario2.NombreUsuario)).thenReturn(usuario2)
+        usuario3 = usuarioService.crearUsuario(usuario3)
+        Mockito.when(usuarioRepository.findByNombreUsuario(usuario3.NombreUsuario)).thenReturn(usuario3)
     }
 
 
     @Test
     void CrearEquipoValido() {
-        Mockito.when(usuarioRepository.findByNombreUsuario())
-        def equipoNuevo = usuarioService.crearNuevoEquipo("trabajo", usuario)
-
-        assert(equipoNuevo.getNombre() == "trabajo")
-        assert(equipoNuevo.getMiembros().size() == 1)
+        def equipo = new Equipo("equipo", usuario.NombreUsuario)
+        Usuario[] usuarios = [usuario]
+        String[] nombreUsuarios = [usuario.NombreUsuario]
+        Mockito.when(usuarioRepository.findByNombreUsuario(usuario.NombreUsuario)).thenReturn(usuario)
+        Mockito.when(usuarioRepository.findAllByNombreUsuario(nombreUsuarios)).thenReturn(usuarios)
+        def equipoNuevo = equipoService.crearEquipo(equipo, usuario, usuarios)
+        assert(equipoNuevo.Nombre == "trabajo")
         assert(equipoNuevo.getLider() == usuario)
     }
 
     @Test
     void AgregarMiembroAEquipo() {
-
+        Usuario[] usuarios = [usuario, usuario2, usuario3]
+        String[] nombreUsuarios = [usuario.NombreUsuario, usuario2.NombreUsuario, usuario3.NombreUsuario]
+        Mockito.when(usuarioRepository.findByEquipos(equipo)).thenReturn(usuarios)
+        Mockito.when(usuarioRepository.findAllByNombreUsuario(nombreUsuarios)).thenReturn(usuarios)
         def equipo = usuarioService.crearNuevoEquipo("trabajo", usuario)
         equipoService.agregarMiembro(equipo, usuario2)
-
         assert(equipo.getMiembros().size() == 2)
         assert(equipo.getMiembros().contains(usuario))
         assert(equipo.getMiembros().contains(usuario2))

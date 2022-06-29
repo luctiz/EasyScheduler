@@ -7,14 +7,11 @@ import org.springframework.data.mongodb.core.mapping.Document
 class Equipo extends Entity {
 
     String Nombre
-    Usuario Lider
-    Usuario[] Miembros = [] // contiene al lider
+    String Lider
 
-    Equipo(nombre, Usuario creador){
+    Equipo(nombre, String creador) {
         super
-        this.id = nombre + "_" + creador.NombreUsuario
         this.Nombre = nombre
         this.Lider = creador
-        Miembros = Miembros + creador
     }
 }

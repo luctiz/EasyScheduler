@@ -7,17 +7,15 @@ import Excepciones.UsuarioNoEsLiderException
 
 import java.time.LocalTime
 
-class Tarea {
-    int Id
+class Tarea extends Entity {
     String Nombre
     LocalTime HoraInicio
     LocalTime HoraFin
-    private Usuario Asignado
+    String Asignado
     Estado estado
     int Peso = 1
-    Evento Evento
 
-    Tarea( id, nombre, horaInicio, horaFin, asignado, evento, peso = 1) {
+    Tarea( nombre, horaInicio, horaFin, asignado, peso = 1) {
         if (horaFin < horaInicio) {
             //log
             throw new InvalidDateException()
@@ -31,22 +29,21 @@ class Tarea {
         HoraFin = horaFin
         Asignado = asignado
         Peso = peso
-        Evento = evento
+        //Evento = evento
         estado = Estado.Pendiente
-        Id = id
     }
 
-    Usuario getAsignado(){
+    String getAsignado(){
         return this.Asignado
     }
-    void setAsignado(Usuario asignante, Usuario asignado){
-        if (asignante != this.Evento.Equipo.getLider()){
-            throw new UsuarioNoEsLiderException()
-        }
+    void setAsignado(String asignante, String asignado){
+//        if (asignante != this.Evento.Equipo.getLider()){
+//            throw new UsuarioNoEsLiderException()
+//        }
 
-        if (!this.Evento.Equipo.getMiembros().contains(asignado)){
-            throw new UsuarioAsignadoNoEsMiembroDelEquipoException()
-        }
+//        if (!Evento.Equipo.getMiembros().contains(asignado)){
+//            throw new UsuarioAsignadoNoEsMiembroDelEquipoException()
+//        }
 
         this.Asignado = asignado
     }

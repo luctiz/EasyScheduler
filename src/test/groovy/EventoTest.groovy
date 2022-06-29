@@ -11,13 +11,13 @@ import java.time.LocalTime;
 
 class EventoTest {
     Equipo equipo
-    Usuario usuario
+    String usuario
     Evento evento
     LocalDate fecha
 
     @BeforeEach
     void setUp() {
-        usuario = new Usuario(nombreUsuario:  "user1", contraseña:  "pass")
+        usuario = new String(nombreUsuario:  "user1", contraseña:  "pass")
         equipo = usuario.getEquipoPrivado()
         fecha = LocalDate.parse("2022-07-01")
         evento = new Evento("evento", fecha, equipo, usuario)
@@ -45,7 +45,7 @@ class EventoTest {
                 "tarea1",
                 new LocalTime(1,1,1,1),
                 new LocalTime(2,1,1,1),
-                new Usuario(nombreUsuario: "user1",contraseña: "pass"),
+                new String(nombreUsuario: "user1",contraseña: "pass"),
                 usuario
         )
         evento.Tareas.size() == 1
@@ -58,7 +58,7 @@ class EventoTest {
                 "tarea1",
                 new LocalTime(1,1,1,1),
                 new LocalTime(2,1,1,1),
-                new Usuario(nombreUsuario: "user1",contraseña: "pass"),
+                new String(nombreUsuario: "user1",contraseña: "pass"),
                 usuario
         )
         GroovyAssert.shouldFail {
@@ -67,7 +67,7 @@ class EventoTest {
                     "tarea1",
                     new LocalTime(1,1,1,1),
                     new LocalTime(2,1,1,1),
-                    new Usuario(nombreUsuario: "user1",contraseña: "pass"),
+                    new String(nombreUsuario: "user1",contraseña: "pass"),
                     usuario
             )
         }
@@ -80,10 +80,10 @@ class EventoTest {
                 "tarea1",
                 new LocalTime(1, 1, 1, 1),
                 new LocalTime(2, 1, 1, 1),
-                new Usuario(nombreUsuario: "user1", contraseña: "pass"),
+                new String(nombreUsuario: "user1", contraseña: "pass"),
                 usuario
         )
-        def user2 = new Usuario(nombreUsuario: "user2", contraseña: "pass")
+        def user2 = new String(nombreUsuario: "user2", contraseña: "pass")
         def duplicado = DuplicarEvento.DuplicarEventos(evento, user2, user2.getEquipoPrivado())
         assert duplicado.tareas.size() == 1
     }
