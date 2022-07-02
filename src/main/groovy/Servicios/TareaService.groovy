@@ -1,21 +1,19 @@
 package Servicios
 
-
 import Modelos.Equipo
 import Modelos.Usuario
 import Repositorios.UsuarioRepository
 import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
-import org.slf4j.LoggerFactory
 import org.springframework.web.server.ResponseStatusException
 
-
 @Service
-class EquipoService extends ServiceBase {
+class TareaService extends ServiceBase {
 
-    private Logger logger = LoggerFactory.getLogger(EquipoService.class)
+    private Logger logger = LoggerFactory.getLogger(TareaService.class)
 
     @Autowired
     private UsuarioRepository usuarioRepository
@@ -26,6 +24,10 @@ class EquipoService extends ServiceBase {
 
     Equipo agregarMiembro(Equipo equipo, String nuevo_miembro) throws Throwable {
         Usuario usuario = usuarioService.getUsuario(nuevo_miembro)
+        if (!usuario) {
+            logger.error("el usuario ${nuevo_miembro} no existe")
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, nuevo_miembro)
+        }
         if (usuario.equipos.contains(equipo)) {
             logger.error("el usuario ${usuario.nombreUsuario} ya existe en ${equipo.nombre}")
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "el usuario ${usuario.nombreUsuario} ya existe en ${equipo.nombre}")
@@ -73,7 +75,7 @@ class EquipoService extends ServiceBase {
         return usuarios
     }
 
-    private boolean exsiteEquipo(String nombre) {
+    boolean exsiteEquipo(String nombre) {
         return usuarioRepository.findByEquipos(nombre)
     }
 }

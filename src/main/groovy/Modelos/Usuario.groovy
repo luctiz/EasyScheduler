@@ -4,13 +4,13 @@ import org.springframework.data.mongodb.core.mapping.Document
 
 @Document("usuarios")
 class Usuario extends Entity {
-    String NombreUsuario
-    String Contraseña
-    Equipo[] Equipos = []
+    public String nombreUsuario
+    public String contraseña
+    public Equipo[] equipos = []
 
     Usuario(String nombreUsuario, String contraseña) {
-        NombreUsuario = nombreUsuario
-        Contraseña = contraseña
+        this.nombreUsuario = nombreUsuario
+        this.contraseña = contraseña
     }
 
 }

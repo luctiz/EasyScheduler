@@ -6,12 +6,12 @@ import org.springframework.data.mongodb.core.mapping.Document
 @Document("equipos")
 class Equipo extends Entity {
 
-    String Nombre
-    String Lider
+    public String nombre
+    public String lider
 
     Equipo(nombre, String creador) {
         super
-        this.Nombre = nombre
-        this.Lider = creador
+        this.nombre = nombre
+        this.lider = creador
     }
 }

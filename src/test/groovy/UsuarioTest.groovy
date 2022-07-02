@@ -1,5 +1,5 @@
 import Modelos.Usuario
-import Repositorios.EquipoRepository
+
 import Repositorios.UsuarioRepository
 import Servicios.EquipoService
 import Servicios.UsuarioService
@@ -26,8 +26,8 @@ class UsuarioTest {
     @BeforeAll
     static void setUp() {
         usuarioRepository = Mockito.mock(UsuarioRepository.class)
+        usuarioService = new UsuarioService(usuarioRepository: usuarioRepository)
         equipoService = new EquipoService(usuarioRepository:  usuarioRepository, usuarioService:  usuarioService)
-        usuarioService = new UsuarioService(usuarioRepository: usuarioRepository, equipoService: equipoService)
         Mockito.when(usuarioRepository.save(usuario)).thenReturn(usuario)
         usuarioService.crearUsuario(usuario)
     }
@@ -35,16 +35,16 @@ class UsuarioTest {
 
     @Test
     void CrearUsuarioValido() {
-        Mockito.when(usuarioRepository.findByNombreUsuario(usuario.NombreUsuario)).thenReturn(usuario)
-        def user = usuarioService.getUsuario(usuario.NombreUsuario)
-        assert(user.NombreUsuario == "usuario")
-        assert(user.Contraseña == "123")
+        Mockito.when(usuarioRepository.findByNombreUsuario(usuario.nombreUsuario)).thenReturn(usuario)
+        def user = usuarioService.getUsuario(usuario.nombreUsuario)
+        assert(user.nombreUsuario == "usuario")
+        assert(user.contraseña == "123")
         assert(user.equipos.size() > 0)
     }
 
     @Test
     void CrearUsuarioNoValido() {
-        Mockito.when(usuarioRepository.findByNombreUsuario(usuario.NombreUsuario)).thenReturn(usuario)
+        Mockito.when(usuarioRepository.findByNombreUsuario(usuario.nombreUsuario)).thenReturn(usuario)
         GroovyAssert.shouldFail {
             var usuario2 = new Usuario(
                     "usuario",

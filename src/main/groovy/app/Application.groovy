@@ -1,4 +1,4 @@
-package com.example.demo
+package app
 
 import com.mongodb.client.MongoClient
 import com.mongodb.client.MongoClients
@@ -22,6 +22,8 @@ import springfox.documentation.swagger2.annotations.EnableSwagger2
 @EnableSwagger2
 class Application {
 
+
+	// TODO reemplazar throw new ResponseStatusException por Exceptions
 	static void main(String[] args) {
 		SpringApplication.run(Application.class, args)
 	}

@@ -2,18 +2,19 @@ package Modelos
 
 import Excepciones.InvalidDateException
 import Excepciones.InvalidPesoException
-import Excepciones.UsuarioAsignadoNoEsMiembroDelEquipoException
-import Excepciones.UsuarioNoEsLiderException
+import org.springframework.data.mongodb.core.mapping.Document
 
 import java.time.LocalTime
 
+@Document("eventos")
 class Tarea extends Entity {
-    String Nombre
-    LocalTime HoraInicio
-    LocalTime HoraFin
-    String Asignado
-    Estado estado
-    int Peso = 1
+    public String Nombre
+    public String Descripcion
+    public LocalTime HoraInicio
+    public LocalTime HoraFin
+    public String Asignado
+    public Estado Estado
+    public int Peso = 1
 
     Tarea( nombre, horaInicio, horaFin, asignado, peso = 1) {
         if (horaFin < horaInicio) {

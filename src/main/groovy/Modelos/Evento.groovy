@@ -2,34 +2,30 @@ package Modelos
 import Excepciones.InvalidDateException
 import Excepciones.TareaInvalidaException
 import Excepciones.UsuarioNoEsLiderException
+import org.springframework.data.mongodb.core.mapping.Document
 
 import java.time.LocalDate
 import java.time.LocalDateTime
 
-class Evento {
-    String Nombre
-    String NombreFecha
-    LocalDate Fecha
-    String Equipo
-    Tarea[] tareas = []
+@Document("eventos")
+class Evento extends Entity {
+    public String nombre
+    public String nombreFecha
+    public LocalDate fecha
+    public String equipo
+    public Tarea[] tareas = []
 
-    Evento(nombre, fecha, equipo, String usuario) {
-        Nombre = nombre
-        if (fecha < LocalDate.now()) {
-            // log
+    Evento(nombre, fecha, equipo) {
+        this.nombre = nombre
+        if (fecha < LocalDate.now())
             throw new InvalidDateException()
-        }
-        Fecha = fecha
-        NombreFecha = nombre + fecha.format("yyyyMMdd") + LocalDateTime.now().getTimeString()
-        Equipo = equipo
-        if (equipo.lider != usuario) {
-            // log
-            throw new UsuarioNoEsLiderException()
-        }
+        this.fecha = fecha
+        nombreFecha = nombre + fecha.format("yyyyMMdd") + LocalDateTime.now().getTimeString()
+        this.equipo = equipo
     }
 
     Tarea addTarea(id, nombreTarea, horaInicio, horaFin, asignado, String creador, peso = 1) {
-        if (creador != this.Equipo.lider) {
+        if (creador != this.equipo.lider) {
             // log
             throw new UsuarioNoEsLiderException()
         }

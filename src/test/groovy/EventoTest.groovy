@@ -1,6 +1,5 @@
 import Modelos.Equipo
 import Modelos.Evento
-import Modelos.Usuario
 import Servicios.DuplicarEvento
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -26,8 +25,8 @@ class EventoTest {
 
     @Test
     void CrearEvento() {
-        assert evento.NombreFecha.contains(evento.Nombre + fecha.format("yyyyMMdd"))
-        assert evento.Tareas.size() == 0
+        assert evento.nombreFecha.contains(evento.nombre + fecha.format("yyyyMMdd"))
+        assert evento.tareas.size() == 0
     }
 
     @Test
@@ -48,7 +47,7 @@ class EventoTest {
                 new String(nombreUsuario: "user1",contraseña: "pass"),
                 usuario
         )
-        evento.Tareas.size() == 1
+        evento.tareas.size() == 1
     }
 
     @Test

@@ -3,8 +3,9 @@ package Excepciones
 import org.springframework.http.HttpStatus
 import org.springframework.web.server.ResponseStatusException
 
-class UsuarioNoEsLiderException extends ResponseStatusException {
-    UsuarioNoEsLiderException(HttpStatus status = HttpStatus.BAD_REQUEST, String reason) {
+class EventoNoExisteException extends ResponseStatusException {
+
+    EventoNoExisteException(HttpStatus status = HttpStatus.NOT_FOUND, String reason) {
         super(status, reason)
     }
 }
