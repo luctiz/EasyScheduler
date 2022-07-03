@@ -29,25 +29,24 @@ class EventoService extends ServiceBase {
     @Autowired
     private EquipoService equipoService
 
-    private verificarEvento(String nombre, LocalDate fecha, String equipo, String usuario) {
-        def ret = new Evento(nombre, fecha, equipo)
-        def team = equipoService.getEquipo(equipo)
+    private verificarEvento(Evento evento, String usuario) {
+        def team = equipoService.getEquipo(evento.equipo)
         def user = usuarioService.getUsuario(usuario)
         if (team.lider != user.nombreUsuario) {
-            logger.error("el usuario ${usuario} no es lider del equipo ${equipo}")
-            throw new UsuarioNoEsLiderException("el usuario ${usuario} no es lider del equipo ${equipo}")
+            logger.error("el usuario ${usuario} no es lider del equipo ${evento.equipo}")
+            throw new UsuarioNoEsLiderException("el usuario ${usuario} no es lider del equipo ${evento.equipo}")
         }
-        return ret
+        return evento
     }
 
-    Evento crearEvento(String nombre, LocalDate fecha, String equipo, String usuario) {
-        def ret = verificarEvento(nombre, fecha, equipo, usuario)
+    Evento crearEvento(Evento evento, String usuario) {
+        def ret = verificarEvento(evento, usuario)
         eventoRepository.save(ret)
         return ret
     }
 
-    Evento editarEvento(String nombre, LocalDate fecha, String equipo, String usuario) {
-        def ret = verificarEvento(nombre, fecha, equipo, usuario)
+    Evento editarEvento(Evento evento, String usuario) {
+        def ret = verificarEvento(evento, usuario)
         eventoRepository.save(ret)
         return ret
     }

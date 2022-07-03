@@ -1,6 +1,7 @@
 package Servicios
 
 import Excepciones.TareaNoAsignadaException
+import Excepciones.UsuarioNoExisteException
 import Modelos.Equipo
 import Modelos.Estado
 import Modelos.Tarea
@@ -73,4 +74,19 @@ class UsuarioService {
     }
 
 
+    Usuario modificarUsuario(Usuario usuario) {
+        if (!usuarioExsite(usuario.nombreUsuario)) {
+            throw new UsuarioNoExisteException("no existe el usuario ${usuario.nombreUsuario}")
+        }
+        usuarioRepository.save(usuario)
+        return usuario
+    }
+
+    void borrarUsuario(String nombreUsuario, String contraseña) {
+        def user = getUsuario(nombreUsuario)
+        if (user.contraseña != contraseña) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "usuario o contraseña invalida")
+        }
+        usuarioRepository.delete(user)
+    }
 }

@@ -1,6 +1,6 @@
 package Servicios
 
-
+import Excepciones.UsuarioNoEsLiderException
 import Modelos.Equipo
 import Modelos.Usuario
 import Repositorios.UsuarioRepository
@@ -75,5 +75,70 @@ class EquipoService extends ServiceBase {
 
     private boolean exsiteEquipo(String nombre) {
         return usuarioRepository.findByEquipos(nombre)
+    }
+
+    Equipo modficarEquipo(Equipo equipo, String lider) {
+        def eq = getEquipo(equipo.nombre)
+        if (eq.lider != lider)
+            throw new UsuarioNoEsLiderException("usuario ${lider} no es lider de ${equipo.nombre}")
+        def miembros = getMiembros(eq.nombre)
+        miembros.each { m ->
+            Equipo remover = new Equipo("", "")
+            m.equipos.each { e ->
+                if (e.nombre == eq.nombre) {
+                    remover = e
+                    return true
+                }
+            }
+            if (remover.nombre != "") {
+                m.equipos -= remover
+                m.equipos += equipo
+            }
+        }
+        usuarioRepository.saveAll(miembros.iterator() as Iterable<Usuario>)
+        return equipo
+    }
+
+    Equipo removerEquipo(Equipo equipo, String lider, String[] miembrosARemover) {
+        def eq = getEquipo(equipo.nombre)
+        if (eq.lider != lider)
+            throw new UsuarioNoEsLiderException("usuario ${lider} no es lider de ${equipo.nombre}")
+        def miembros = getMiembros(equipo.nombre)
+        miembros.each { m ->
+            Equipo remover = new Equipo("", "")
+            if (miembrosARemover.contains(m.nombreUsuario)) {
+                m.equipos.each { e ->
+                    if (e.nombre == eq.nombre) {
+                        remover = e
+                        return true
+                    }
+                }
+                if (remover.nombre != "") {
+                    m.equipos -= remover
+                }
+            }
+        }
+        usuarioRepository.saveAll(miembros.iterator() as Iterable<Usuario>)
+        return equipo
+    }
+
+    void borrarEquipo(String nombre, String lider) {
+        def eq = getEquipo(nombre)
+        if (eq.lider != lider)
+            throw new UsuarioNoEsLiderException("usuario ${lider} no es lider de ${equipo.nombre}")
+        def miembros = getMiembros(nombre)
+        miembros.each { m ->
+            Equipo remover = new Equipo("", "")
+            m.equipos.each { e ->
+                if (e.nombre == eq.nombre) {
+                    remover = e
+                    return true
+                }
+            }
+            if (remover.nombre != "") {
+                m.equipos -= remover
+            }
+        }
+        usuarioRepository.saveAll(miembros.iterator() as Iterable<Usuario>)
     }
 }
