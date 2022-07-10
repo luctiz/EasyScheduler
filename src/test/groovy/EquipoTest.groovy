@@ -35,7 +35,7 @@ class EquipoTest {
         usuario3 = usuarioService.crearUsuario(usuario3)
         Mockito.when(usuarioRepository.findByNombreUsuario(usuario3.nombreUsuario)).thenReturn(usuario3)
         Mockito.when(usuarioRepository.saveAll(usuarios.iterator() as Iterable<Usuario>)).thenReturn(usuarios as List<Usuario>)
-        equipo = equipoService.crearEquipo("equipo",usuario, usuarios)
+        equipo = equipoService.crearEquipo("equipo",usuario.nombreUsuario, usuarios)
     }
 
 
@@ -47,7 +47,8 @@ class EquipoTest {
 
     @Test
     void AgregarMiembroAEquipo() {
-        usuario.equipos = []
+        usuario2.equipos = []
+        Mockito.when(usuarioRepository.findByEquipos(equipo.nombre)).thenReturn(usuarios)
         equipo = equipoService.agregarMiembro(equipo, usuario2.nombreUsuario)
         usuarios += usuario2
         Mockito.when(usuarioRepository.findByEquipos(equipo.nombre)).thenReturn(usuarios)

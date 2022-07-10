@@ -3,7 +3,6 @@ package Controladores
 import Modelos.Evento
 import Modelos.Tarea
 import Servicios.EventoService
-import org.bson.types.ObjectId
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.format.annotation.DateTimeFormat
 import org.springframework.http.HttpStatus
@@ -36,7 +35,7 @@ class EventoController extends ApiControllerBase {
     }
 
     @PutMapping("/evento/{usuario}")
-    @ResponseStatus(HttpStatus.ACCEPTED)
+    @ResponseStatus(HttpStatus.OK)
     Evento editarEvento(@RequestBody Evento evento,@PathVariable String usuario) {
         if (usuario.isAllWhitespace()) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "")
@@ -44,20 +43,18 @@ class EventoController extends ApiControllerBase {
         return service.editarEvento(evento, usuario)
     }
 
-    @DeleteMapping("/evento/{evento}&{nombreFecha}")
+    @DeleteMapping("/evento/{nombreFecha}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    void borrarEvento(@PathVariable ObjectId evento, @PathVariable String nombreFecha) {
-        if (!nombreFecha && !evento) {
+    void borrarEvento(@PathVariable String nombreFecha) {
+        if (!nombreFecha || nombreFecha.isAllWhitespace()) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "")
         }
-        if (nombreFecha.isAllWhitespace() && evento)
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "")
-        service.borrarEvento(evento, nombreFecha)
+        service.borrarEvento(nombreFecha)
     }
 
 
     @PutMapping("/evento/tarea")
-    @ResponseStatus(HttpStatus.ACCEPTED)
+    @ResponseStatus(HttpStatus.OK)
     Evento agregarTarea(@RequestBody Evento evento, @RequestBody Tarea tarea) {
         return service.agregarTarea(evento, tarea)
     }
@@ -69,7 +66,7 @@ class EventoController extends ApiControllerBase {
     }
 
     @GetMapping("/evento/nombre/{nombre}")
-    @ResponseStatus(HttpStatus.FOUND)
+    @ResponseStatus(HttpStatus.OK)
     Evento getEvento(@PathVariable String nombre) {
         if (nombre.isAllWhitespace())
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "")
@@ -77,13 +74,13 @@ class EventoController extends ApiControllerBase {
     }
 
     @GetMapping("/evento/btfechas/{desde}&{hasta}")
-    @ResponseStatus(HttpStatus.FOUND)
+    @ResponseStatus(HttpStatus.OK)
     Evento[] getEventosByFechas(@PathVariable @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate desde, @PathVariable @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate hasta) {
         return service.getEventosByFechas(desde, hasta)
     }
 
     @GetMapping("/evento/btfechasyNombre/{desde}&{hasta}&{nombre}")
-    @ResponseStatus(HttpStatus.FOUND)
+    @ResponseStatus(HttpStatus.OK)
     Evento[] getEventosByFechasAndNombre(@PathVariable @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate desde, @PathVariable @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate hasta,@PathVariable String nombre) {
         if (nombre.isAllWhitespace())
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "")
@@ -91,7 +88,7 @@ class EventoController extends ApiControllerBase {
     }
 
     @GetMapping("/evento/btfechasyEquipo/{desde}&{hasta}&{equipo}")
-    @ResponseStatus(HttpStatus.FOUND)
+    @ResponseStatus(HttpStatus.OK)
     Evento[] getEventosByFechasAndEquipo(@PathVariable @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate desde, @PathVariable @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate hasta,@PathVariable String equipo) {
         if (equipo.isAllWhitespace())
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "")
@@ -99,7 +96,7 @@ class EventoController extends ApiControllerBase {
     }
 
     @GetMapping("/evento/equipo/{equipo}")
-    @ResponseStatus(HttpStatus.FOUND)
+    @ResponseStatus(HttpStatus.OK)
     Evento[] getEventosByEquipo(@PathVariable String equipo) {
         if (equipo.isAllWhitespace())
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "")
@@ -107,7 +104,7 @@ class EventoController extends ApiControllerBase {
     }
 
     @GetMapping("/evento/{nombre}")
-    @ResponseStatus(HttpStatus.FOUND)
+    @ResponseStatus(HttpStatus.OK)
     Evento[] getEventosByNombre(@PathVariable String nombre) {
         if (nombre.isAllWhitespace())
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "")

@@ -38,7 +38,7 @@ class UsuarioTest {
         Mockito.when(usuarioRepository.findByNombreUsuario(usuario.nombreUsuario)).thenReturn(usuario)
         def user = usuarioService.getUsuario(usuario.nombreUsuario)
         assert(user.nombreUsuario == "usuario")
-        assert(user.contraseña == "123")
+        assert(user.contrasenia == "123")
         assert(user.equipos.size() > 0)
     }
 

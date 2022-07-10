@@ -25,7 +25,7 @@ class Evento extends Entity {
     }
 
     Tarea addTarea(id, nombreTarea, horaInicio, horaFin, asignado, String creador, peso = 1) {
-        if (creador != this.equipo.lider) {
+        if (creador != this.equipo) {
             // log
             throw new UsuarioNoEsLiderException()
         }

@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.PatchMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.PutMapping
@@ -21,30 +22,30 @@ class UsuarioController extends ApiControllerBase {
 
 
     @GetMapping("/usuario/{nombreUsuario}")
-    @ResponseStatus(HttpStatus.FOUND)
+    @ResponseStatus(HttpStatus.OK)
     Usuario getUsuario(@PathVariable String nombreUsuario) throws Throwable {
         if (nombreUsuario.isAllWhitespace())
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "nombre de usuario no puede ser vacio")
         return service.getUsuario(nombreUsuario)
     }
 
-    @PostMapping("/usuario")
+    @PostMapping("/usuario/{nombreUsuario}&{contrasenia}")
     @ResponseStatus(HttpStatus.CREATED)
-    Usuario crearUsuario(@RequestBody Usuario usuario) throws Throwable {
-        if (!usuario || usuario.nombreUsuario.isAllWhitespace() || usuario.contraseña.isAllWhitespace())
+    Usuario crearUsuario(@PathVariable String nombreUsuario, @PathVariable String contrasenia) throws Throwable {
+        if (nombreUsuario.isAllWhitespace() || contrasenia.isAllWhitespace())
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "nombre de usuario/contraseña no puede ser vacio")
-        return service.crearUsuario(usuario)
+        return service.crearUsuario(new Usuario(nombreUsuario, contrasenia))
     }
 
-    @GetMapping("/usuario")
-    @ResponseStatus(HttpStatus.FOUND)
-    Usuario[] getUsuarios(@RequestBody Usuario[] usuarios) {
-        if (!usuarios || usuarios.size())
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "usuarios no pueden ser null o vacios")
-        return service.getUsuarios(usuarios)
-    }
+//    @GetMapping("/usuario")
+//    @ResponseStatus(HttpStatus.OK)
+//    Usuario[] getUsuarios(Usuario[] usuarios) {
+//        if (!usuarios || usuarios.size())
+//            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "usuarios no pueden ser null o vacios")
+//        return service.getUsuarios(usuarios)
+//    }
 
-    @PutMapping
+    @PatchMapping
     @ResponseStatus(HttpStatus.ACCEPTED)
     Usuario modificarUsuario(@RequestBody Usuario usuario) {
         return service.modificarUsuario(usuario)

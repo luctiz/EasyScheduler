@@ -1,13 +1,10 @@
 package Repositorios
 
 import Modelos.Evento
-import org.bson.types.ObjectId
 import org.springframework.data.mongodb.repository.MongoRepository
-import org.springframework.data.mongodb.repository.Query
-
 import java.time.LocalDate
 
-interface EventoRepository extends MongoRepository<Evento, ObjectId>{
+interface EventoRepository extends MongoRepository<Evento, String>{
     Evento findByNombreFecha(String nombre)
     Evento[] findByFechaBetween(LocalDate desde, LocalDate hasta)
     Evento[] findByNombreLike(String nombre)

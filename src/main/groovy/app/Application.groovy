@@ -29,11 +29,11 @@ class Application {
 	}
 
 	@Bean MongoClient mongoClient() {
-		return MongoClients.create("mongodb://localhost:27017");
+		return MongoClients.create("mongodb://localhost:27017")
 	}
 
 	@Bean MongoTemplate mongoTemplate() {
-		return new MongoTemplate(mongoClient(), "EasyScheduler");
+		return new MongoTemplate(mongoClient(), "EasyScheduler")
 	}
 
 	@Bean Docket api() {
@@ -41,7 +41,7 @@ class Application {
 				.select()
 				.apis(RequestHandlerSelectors.any())
 				.paths(PathSelectors.any())
-				.build();
+				.build()
 	}
 
 }

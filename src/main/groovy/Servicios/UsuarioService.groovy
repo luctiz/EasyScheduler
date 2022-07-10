@@ -1,10 +1,7 @@
 package Servicios
 
-import Excepciones.TareaNoAsignadaException
 import Excepciones.UsuarioNoExisteException
 import Modelos.Equipo
-import Modelos.Estado
-import Modelos.Tarea
 import Modelos.Usuario
 import Repositorios.UsuarioRepository
 import org.slf4j.Logger
@@ -42,12 +39,12 @@ class UsuarioService {
         def usuario = usuarioRepository.findByNombreUsuario(nombreUsuario)
         return usuario
     }
-    void completarTarea(Tarea tarea){
-        if (tarea.getAsignado() != this){
-            throw new TareaNoAsignadaException()
-        }
-        tarea.setEstado(Estado.Completado)
-    }
+//    void completarTarea(Tarea tarea){
+//        if (tarea.getAsignado() != this){
+//            throw new TareaNoAsignadaException()
+//        }
+//        tarea.setEstado(Estado.Completado)
+//    }
 
     Usuario getUsuario(String nombreUsuario) throws Throwable {
         def usuario = usuarioRepository.findByNombreUsuario(nombreUsuario)
@@ -78,13 +75,15 @@ class UsuarioService {
         if (!usuarioExsite(usuario.nombreUsuario)) {
             throw new UsuarioNoExisteException("no existe el usuario ${usuario.nombreUsuario}")
         }
-        usuarioRepository.save(usuario)
-        return usuario
+        def usuario_edit = usuarioRepository.findByNombreUsuario(usuario.nombreUsuario)
+        usuario_edit.contrasenia = usuario.contrasenia
+        usuarioRepository.save(usuario_edit)
+        return usuario_edit
     }
 
     void borrarUsuario(String nombreUsuario, String contraseña) {
         def user = getUsuario(nombreUsuario)
-        if (user.contraseña != contraseña) {
+        if (user.contrasenia != contraseña) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "usuario o contraseña invalida")
         }
         usuarioRepository.delete(user)

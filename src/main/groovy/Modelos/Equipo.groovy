@@ -1,17 +1,19 @@
 package Modelos
 
-import org.springframework.data.mongodb.core.mapping.Document
+import org.springframework.data.mongodb.core.index.Indexed
 
-
-@Document("equipos")
 class Equipo extends Entity {
-
+    @Indexed
     public String nombre
     public String lider
 
     Equipo(nombre, String creador) {
-        super
         this.nombre = nombre
         this.lider = creador
+        super
+    }
+
+    Equipo() {
+
     }
 }

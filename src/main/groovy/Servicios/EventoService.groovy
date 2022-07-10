@@ -7,7 +7,6 @@ import Excepciones.UsuarioNoEsLiderException
 import Modelos.Evento
 import Modelos.Tarea
 import Repositorios.EventoRepository
-import org.bson.types.ObjectId
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
@@ -51,16 +50,8 @@ class EventoService extends ServiceBase {
         return ret
     }
 
-    void borrarEvento(ObjectId eventoId = null, String nombreFecha = null) {
-        def evento
-        if (evento)
-            evento = getEvento(nombreFecha)
-        else
-            evento = getEvento(eventoId)
-        if (!existeEvento(evento.nombreFecha)) {
-            logger.error("evento ${evento.nombreFecha} no existe")
-            throw new EventoNoExisteException("evento ${evento.nombreFecha} no existe")
-        }
+    void borrarEvento(String nombreFecha) {
+        def evento = getEvento(nombreFecha)
         eventoRepository.delete(evento)
     }
 
@@ -85,15 +76,6 @@ class EventoService extends ServiceBase {
         }
         evento.tareas -= tarea
         eventoRepository.save(evento)
-    }
-
-    Evento getEvento(ObjectId id) {
-        def evento = eventoRepository.findById(id)
-        if (!evento.get()) {
-            logger.error("evento ${id} no existe")
-            throw new EventoNoExisteException("evento ${id} no existe")
-        }
-        return evento.get()
     }
 
     Evento getEvento(String nombreFecha) {

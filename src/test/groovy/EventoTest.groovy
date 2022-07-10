@@ -1,5 +1,6 @@
 import Modelos.Equipo
 import Modelos.Evento
+import Modelos.Usuario
 import Servicios.DuplicarEvento
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -16,7 +17,7 @@ class EventoTest {
 
     @BeforeEach
     void setUp() {
-        usuario = new String(nombreUsuario:  "user1", contraseña:  "pass")
+        usuario = new Usuario(nombreUsuario:  "user1", contrasenia:  "pass")
         equipo = usuario.getEquipoPrivado()
         fecha = LocalDate.parse("2022-07-01")
         evento = new Evento("evento", fecha, equipo, usuario)
