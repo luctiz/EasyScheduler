@@ -3,6 +3,7 @@ package Controladores
 import Modelos.Evento
 import Modelos.Tarea
 import Servicios.EventoService
+import org.bson.types.ObjectId
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.format.annotation.DateTimeFormat
 import org.springframework.http.HttpStatus
@@ -13,11 +14,9 @@ import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.PutMapping
 import org.springframework.web.bind.annotation.RequestBody
-import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.ResponseStatus
 import org.springframework.web.bind.annotation.RestController
 import org.springframework.web.server.ResponseStatusException
-
 import java.time.LocalDate
 
 @CrossOrigin(origins = "*")
@@ -27,18 +26,18 @@ class EventoController extends ApiControllerBase {
     @Autowired
     private EventoService service
 
-    @PostMapping("/evento/{usuario}")
+    @PostMapping("/evento/{nombre}&{fecha}&{equipo}&{usuario}")
     @ResponseStatus(HttpStatus.CREATED)
-    Evento crearEvento(@RequestBody Evento evento, @PathVariable String usuario) {
-        if (usuario.isAllWhitespace()) {
+    Evento crearEvento(@PathVariable String nombre, @PathVariable LocalDate fecha, @PathVariable equipo, @PathVariable String usuario) {
+        if (nombre.isAllWhitespace() || equipo.isAllWhitespace() || usuario.isAllWhitespace()) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "")
         }
-        return service.crearEvento(evento, usuario)
+        return service.crearEvento(new Evento(nombre, fecha, equipo, ObjectId.get()), usuario)
     }
 
     @PutMapping("/evento/{usuario}")
     @ResponseStatus(HttpStatus.OK)
-    Evento editarEvento(@RequestBody Evento evento,@PathVariable String usuario) {
+    Evento editarEvento(@RequestBody Evento evento, @PathVariable String usuario) {
         if (usuario.isAllWhitespace()) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "")
         }
@@ -52,19 +51,6 @@ class EventoController extends ApiControllerBase {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "")
         }
         service.borrarEvento(nombreFecha)
-    }
-
-
-    @PutMapping("/evento/tarea")
-    @ResponseStatus(HttpStatus.OK)
-    Evento agregarTarea(@RequestBody Evento evento, @RequestBody Tarea tarea) {
-        return service.agregarTarea(evento, tarea)
-    }
-
-    @PutMapping("/evento/borrarTarea")
-    @ResponseStatus(HttpStatus.ACCEPTED)
-    Evento borrarTarea(@RequestBody Evento evento, @RequestBody Tarea tarea) {
-        return service.borrarTarea(evento, tarea)
     }
 
     @GetMapping("/evento/nombre/{nombre}")

@@ -2,6 +2,7 @@ package Controladores
 
 import Modelos.Usuario
 import Servicios.UsuarioService
+import org.bson.types.ObjectId
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.CrossOrigin
@@ -10,7 +11,6 @@ import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PatchMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
-import org.springframework.web.bind.annotation.PutMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.ResponseStatus
 import org.springframework.web.bind.annotation.RestController
@@ -25,7 +25,7 @@ class UsuarioController extends ApiControllerBase {
 
     @GetMapping("/usuario/{nombreUsuario}")
     @ResponseStatus(HttpStatus.OK)
-    Usuario getUsuario(@PathVariable String nombreUsuario) throws Throwable {
+    Usuario getUsuario(@PathVariable String nombreUsuario) {
         if (nombreUsuario.isAllWhitespace())
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "nombre de usuario no puede ser vacio")
         return service.getUsuario(nombreUsuario)
@@ -36,7 +36,7 @@ class UsuarioController extends ApiControllerBase {
     Usuario crearUsuario(@PathVariable String nombreUsuario, @PathVariable String contrasenia) throws Throwable {
         if (nombreUsuario.isAllWhitespace() || contrasenia.isAllWhitespace())
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "nombre de usuario/contraseña no puede ser vacio")
-        return service.crearUsuario(new Usuario(nombreUsuario, contrasenia))
+        return service.crearUsuario(new Usuario(nombreUsuario, contrasenia, ObjectId.get()))
     }
 
 //    @GetMapping("/usuario")
@@ -47,8 +47,8 @@ class UsuarioController extends ApiControllerBase {
 //        return service.getUsuarios(usuarios)
 //    }
 
-    @PatchMapping
-    @ResponseStatus(HttpStatus.ACCEPTED)
+    @PatchMapping("/usuario")
+    @ResponseStatus(HttpStatus.OK)
     Usuario modificarUsuario(@RequestBody Usuario usuario) {
         return service.modificarUsuario(usuario)
     }

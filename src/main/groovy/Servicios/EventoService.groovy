@@ -2,10 +2,8 @@ package Servicios
 
 import Excepciones.EventoNoExisteException
 import Excepciones.FechaInvalidException
-import Excepciones.TareaInvalidaException
 import Excepciones.UsuarioNoEsLiderException
 import Modelos.Evento
-import Modelos.Tarea
 import Repositorios.EventoRepository
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -55,29 +53,6 @@ class EventoService extends ServiceBase {
         eventoRepository.delete(evento)
     }
 
-    Evento agregarTarea(Evento evento, Tarea tarea) {
-        if (evento.tareas.contains(tarea)) {
-            logger.error("ya existe tarea ${tarea.Nombre} en el evento")
-            throw new TareaInvalidaException("ya existe tarea ${tarea.Nombre} en el evento")
-        }
-        if (!usuarioService.getUsuario(tarea.Asignado).equipos.contains(equipoService.getEquipo(evento.nombre))) {
-            logger.error("el asignado ${tarea.Asignado} no pertenece al equipo ${evento.equipo} del evento ${evento.nombre}")
-            throw new TareaInvalidaException("el asignado ${tarea.Asignado} no pertenece al equipo ${evento.equipo} del evento ${evento.nombre}")
-        }
-        evento.tareas += tarea
-        eventoRepository.save(evento)
-        return evento
-    }
-
-    void borrarTarea(Evento evento, Tarea tarea) {
-        if (!evento.tareas.contains(tarea)) {
-            logger.error("no existe tarea ${tarea.Nombre} en el evento")
-            throw new TareaInvalidaException("no existe tarea ${tarea.Nombre} en el evento")
-        }
-        evento.tareas -= tarea
-        eventoRepository.save(evento)
-    }
-
     Evento getEvento(String nombreFecha) {
         def evento = eventoRepository.findByNombreFecha(nombreFecha)
         if (!evento) {
@@ -119,7 +94,7 @@ class EventoService extends ServiceBase {
         return eventoRepository.findByNombreLike(nombre)
     }
 
-    private boolean existeEvento(String nombreFecha) {
-        return eventoRepository.findByNombreFecha(nombreFecha)
-    }
+//    private boolean existeEvento(String nombreFecha) {
+//        return eventoRepository.findByNombreFecha(nombreFecha)
+//    }
 }

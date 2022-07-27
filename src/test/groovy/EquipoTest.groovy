@@ -4,6 +4,7 @@ import Repositorios.UsuarioRepository
 import Servicios.EquipoService
 import Servicios.UsuarioService
 import groovy.test.GroovyAssert
+import org.bson.types.ObjectId
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.mockito.Mockito
@@ -14,11 +15,12 @@ class EquipoTest {
     private static EquipoService equipoService
     private static UsuarioService usuarioService
 
-    def usuario = new Usuario( "user12",  "pass")
-    def usuario2 = new Usuario("usuario2", "123")
-    def usuario3 = new Usuario("usuario3", "123")
+    def usuario = new Usuario( "user12",  "pass", ObjectId.get())
+    def usuario2 = new Usuario("usuario2", "123", ObjectId.get())
+    def usuario3 = new Usuario("usuario3", "123", ObjectId.get())
     Usuario[] usuarios = [usuario]
-    def equipo = new Equipo("equipo", usuario.nombreUsuario)
+    String[] users = [usuario.nombreUsuario]
+    def equipo = new Equipo("equipo", usuario.nombreUsuario, ObjectId.get())
 
     @BeforeEach
     void setUp() {
@@ -34,8 +36,8 @@ class EquipoTest {
         Mockito.when(usuarioRepository.findByNombreUsuario(usuario2.nombreUsuario)).thenReturn(usuario2)
         usuario3 = usuarioService.crearUsuario(usuario3)
         Mockito.when(usuarioRepository.findByNombreUsuario(usuario3.nombreUsuario)).thenReturn(usuario3)
-        Mockito.when(usuarioRepository.saveAll(usuarios.iterator() as Iterable<Usuario>)).thenReturn(usuarios as List<Usuario>)
-        equipo = equipoService.crearEquipo("equipo",usuario.nombreUsuario, usuarios)
+        Mockito.when(usuarioRepository.saveAll(usuarios.toList())).thenReturn(usuarios.toList())
+        equipo = equipoService.crearEquipo("equipo",usuario.nombreUsuario, users)
     }
 
 
@@ -51,6 +53,7 @@ class EquipoTest {
         Mockito.when(usuarioRepository.findByEquipos(equipo.nombre)).thenReturn(usuarios)
         equipo = equipoService.agregarMiembro(equipo, usuario2.nombreUsuario)
         usuarios += usuario2
+        users += usuario2.nombreUsuario
         Mockito.when(usuarioRepository.findByEquipos(equipo.nombre)).thenReturn(usuarios)
         def miembros = equipoService.getMiembros(equipo.nombre)
         assert(miembros.size() == 2)
@@ -67,6 +70,7 @@ class EquipoTest {
         }
         equipoService.agregarMiembro(equipo, usuario2.nombreUsuario)
         usuarios += usuario2
+        users += usuario2.nombreUsuario
         Mockito.when(usuarioRepository.findByEquipos(equipo.nombre)).thenReturn(usuarios)
         GroovyAssert.shouldFail {
             equipoService.agregarMiembro(equipo, usuario2.nombreUsuario)
@@ -77,40 +81,7 @@ class EquipoTest {
         assert(usuarios.contains(usuario2))
     }
 
-//    @Test
-//    void AgregarEventoAEquipoSiendoLiderEsValido(){
-//        Usuario[] usuarios = [usuario]
-//        Mockito.when(usuarioRepository.saveAll(usuarios.iterator() as Iterable<Usuario>)).thenReturn(usuarios as List<Usuario>)
-//        def equipo = new Equipo("equipo", usuario.NombreUsuario)
-//        equipo = equipoService.crearEquipo("equipo",usuario, usuarios)
-//        Mockito.when(usuarioRepository.findByEquipos(equipo.Nombre)).thenReturn(usuarios)
-//        equipoService.agregarMiembro(equipo, usuario2.NombreUsuario)
-//        def fecha = LocalDate.parse("2022-07-01")
-//        def evento = new Evento("eventoequipo",fecha,equipo,usuario)
-//
-//        evento.addTarea(
-//                1,
-//                "tarea1",
-//                LocalTime.parse('01:01:01.01'),
-//                LocalTime.parse('02:01:01.01'),
-//                usuario,
-//                usuario
-//        )
-//
-//        assert(evento.getTareas().size() == 1)
-//
-//
-//    }
 
-//    @Test
-//    void AgregarEventoAEquipoSinSerLiderEsInvalido(){
-//        def equipo = usuarioService.crearNuevoEquipo("trabajo", usuario)
-//        equipoService.agregarMiembro(equipo, usuario2)
-//        def fecha = LocalDate.parse("2022-07-01")
-//        GroovyAssert.shouldFail {
-//            def _evento = new Evento("eventoequipo", fecha, equipo, usuario2)
-//        }
-//    }
 //
 //    @Test
 //    void AgregarTareaAEventoSinSerLiderEsInvalido(){

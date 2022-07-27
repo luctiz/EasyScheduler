@@ -1,5 +1,6 @@
 package Modelos
 
+import org.bson.types.ObjectId
 import org.springframework.data.mongodb.core.index.Indexed
 
 class Equipo extends Entity {
@@ -7,10 +8,10 @@ class Equipo extends Entity {
     public String nombre
     public String lider
 
-    Equipo(nombre, String creador) {
+    Equipo(nombre, String creador, ObjectId _id) {
         this.nombre = nombre
         this.lider = creador
-        super
+        super._id = _id
     }
 
     Equipo() {

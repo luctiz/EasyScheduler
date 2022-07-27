@@ -4,6 +4,7 @@ import Excepciones.UsuarioNoEsLiderException
 import Modelos.Equipo
 import Modelos.Usuario
 import Repositorios.UsuarioRepository
+import org.bson.types.ObjectId
 import org.slf4j.Logger
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpStatus
@@ -24,41 +25,36 @@ class EquipoService extends ServiceBase {
     private UsuarioService usuarioService
 
 
-    Equipo agregarMiembro(Equipo equipo, String nuevo_miembro) throws Throwable {
+    Equipo agregarMiembro(Equipo equipo, String nuevo_miembro) {
         Usuario usuario = usuarioService.getUsuario(nuevo_miembro)
         equipo = getEquipo(equipo.nombre)
-        if (usuario.equipos.each { e ->
-            if (e.nombre == equipo.nombre) {
-                logger.error("el usuario ${usuario.nombreUsuario} ya existe en ${equipo.nombre}")
-                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "el usuario ${usuario.nombreUsuario} ya existe en ${equipo.nombre}")
-            }
-        })
+        if (usuario.equipos.find { e -> e.nombre == equipo.nombre}) {
+            logger.error("el usuario ${usuario.nombreUsuario} ya existe en ${equipo.nombre}")
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "el usuario ${usuario.nombreUsuario} ya existe en ${equipo.nombre}")
+        }
         logger.info("Se agrego ${usuario.nombreUsuario} al equipo ${equipo.nombre}")
         usuario.equipos += equipo
         usuarioRepository.save(usuario)
         return equipo
     }
 
-    Equipo crearEquipo(String nombre, String creador, Usuario[] miembros) {
+    Equipo crearEquipo(String nombre, String creador, String[] miembros) {
         if (exsiteEquipo(nombre)) {
             logger.error("el equipo ${nombre} ya existe")
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "el equipo ${nombre} ya existe")
         }
         def userCreador = usuarioService.getUsuario(creador)
-        miembros = usuarioService.getUsuarios(miembros)
-        boolean contains = false
-        miembros.each { m ->
-            if (m.nombreUsuario == creador)
-                contains = true
+        Usuario[] miembrosAagregar = usuarioService.getUsuarios(miembros)
+        if (!miembrosAagregar)
+            miembrosAagregar = []
+        if (!miembrosAagregar.find { u -> u.nombreUsuario == creador})
+            miembrosAagregar += userCreador
+        def equipo = new Equipo(nombre, userCreador.nombreUsuario, ObjectId.get())
+        for (i in 0..<miembrosAagregar.size()) {
+            miembrosAagregar[i] = usuarioService.getUsuario(miembrosAagregar[i].nombreUsuario)
+            miembrosAagregar[i].equipos += equipo
         }
-        if (!contains)
-            miembros += userCreador
-        def equipo = new Equipo(nombre, userCreador.nombreUsuario)
-        for (i in 0..<miembros.size()) {
-            miembros[i] = usuarioService.getUsuario(miembros[i].nombreUsuario)
-            miembros[i].equipos += equipo
-        }
-        usuarioRepository.saveAll(miembros.iterator() as Iterable<Usuario>)
+        usuarioRepository.saveAll(miembrosAagregar.toList())
         return equipo
     }
 
@@ -66,7 +62,7 @@ class EquipoService extends ServiceBase {
         Usuario[] usuarios = usuarioRepository.findByEquipos(nombre)
         if (!usuarios)
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "no existe equipo ${nombre}")
-        Equipo ret = new Equipo(nombre, "")
+        Equipo ret = new Equipo(nombre, "", ObjectId.get())
         usuarios.each {  user ->
             if (user.equipos.find {e -> e.nombre == nombre}.lider == user.nombreUsuario)
                 ret.lider = user.nombreUsuario
@@ -92,19 +88,13 @@ class EquipoService extends ServiceBase {
             throw new UsuarioNoEsLiderException("usuario ${lider} no es lider de ${equipo.nombre}")
         def miembros = getMiembros(eq.nombre)
         miembros.each { m ->
-            Equipo remover = new Equipo("", "")
-            m.equipos.each { e ->
-                if (e.nombre == eq.nombre) {
-                    remover = e
-                    return true
-                }
-            }
-            if (remover.nombre != "") {
+            Equipo remover = m.equipos.find { e -> e.nombre == eq.nombre}
+            if (remover) {
                 m.equipos -= remover
                 m.equipos += equipo
             }
         }
-        usuarioRepository.saveAll(miembros.iterator() as Iterable<Usuario>)
+        usuarioRepository.saveAll(miembros.toList())
         return equipo
     }
 
@@ -113,21 +103,14 @@ class EquipoService extends ServiceBase {
         if (eq.lider != lider)
             throw new UsuarioNoEsLiderException("usuario ${lider} no es lider de ${equipo}")
         def miembros = getMiembros(equipo)
-        for (i in 0..<miembros.size()) {
-            Equipo remover = new Equipo("", "")
+        for (i in 0..< miembros.size()) {
             if (miembrosARemover.contains(miembros[i].nombreUsuario)) {
-                miembros[i].equipos.each { e ->
-                    if (e.nombre == eq.nombre) {
-                        remover = e
-                        return true
-                    }
-                }
+                Equipo remover = miembros[i].equipos.find { e -> e.nombre == eq.nombre}
                 if (remover.nombre != "")
                     miembros[i].equipos -= remover
             }
         }
-        // TODO no esta eliminando el miembro
-        usuarioRepository.saveAll(miembros.iterator() as Iterable<Usuario>)
+        usuarioRepository.saveAll(miembros.toList())
         return eq
     }
 
@@ -136,19 +119,12 @@ class EquipoService extends ServiceBase {
         if (eq.lider != lider)
             throw new UsuarioNoEsLiderException("usuario ${lider} no es lider de ${nombre}")
         def miembros = getMiembros(nombre)
-        for (i in 0..<miembros.size()) {
-            Equipo remover = new Equipo("", "")
-            miembros[i].equipos.each { e ->
-                if (e.nombre == eq.nombre) {
-                    remover = e
-                    return true
-                }
-            }
+        for (i in 0..< miembros.size()) {
+            Equipo remover = miembros[i].equipos.find { e -> e.nombre == eq.nombre }
             if (remover.nombre != "") {
                 miembros[i].equipos -= remover
             }
         }
-        // TODO no esta eliminando todos los miembros
-        usuarioRepository.saveAll(miembros.iterator() as Iterable<Usuario>)
+        usuarioRepository.saveAll(miembros.toList())
     }
 }

@@ -3,6 +3,7 @@ import Modelos.Usuario
 import Repositorios.UsuarioRepository
 import Servicios.EquipoService
 import Servicios.UsuarioService
+import org.bson.types.ObjectId
 import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
 import groovy.test.GroovyAssert
@@ -11,8 +12,6 @@ import org.mockito.Mockito
 
 
 class UsuarioTest {
-
-
     private static UsuarioRepository usuarioRepository
     private static EquipoService equipoService
     private static UsuarioService usuarioService
@@ -20,7 +19,8 @@ class UsuarioTest {
 
     static usuario = new Usuario(
             "usuario",
-            "123"
+            "123",
+            ObjectId.get()
     )
 
     @BeforeAll
@@ -48,7 +48,8 @@ class UsuarioTest {
         GroovyAssert.shouldFail {
             var usuario2 = new Usuario(
                     "usuario",
-                    "123"
+                    "123",
+                    ObjectId.get()
             )
             usuarioService.crearUsuario(usuario2)
         }

@@ -45,10 +45,10 @@ class TareaTest {
                 horaIFin,
                 usuario
         )
-        assert tarea.Nombre == "tarea"
-        assert tarea.HoraFin == horaIFin
-        assert tarea.HoraInicio == horaInicio
-        assert tarea.Peso == 1
+        assert tarea.nombre == "tarea"
+        assert tarea.horaFin == horaIFin
+        assert tarea.horaInicio == horaInicio
+        assert tarea.peso == 1
         assert tarea.estado == Estado.Pendiente
 
     }

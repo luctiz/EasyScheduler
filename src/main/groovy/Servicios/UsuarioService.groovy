@@ -4,6 +4,7 @@ import Excepciones.UsuarioNoExisteException
 import Modelos.Equipo
 import Modelos.Usuario
 import Repositorios.UsuarioRepository
+import org.bson.types.ObjectId
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
@@ -27,7 +28,7 @@ class UsuarioService {
     }
 
     private Equipo crearNuevoEquipo(String nombre, Usuario usuario) {
-        def equipo = new Equipo(nombre, usuario.nombreUsuario)
+        def equipo = new Equipo(nombre, usuario.nombreUsuario, ObjectId.get())
         if (usuarioRepository.findByEquipos(nombre)) {
             logger.error("ya existe un equipo con nombre ${nombre}")
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "equipo ${nombre} ya existe")
@@ -58,6 +59,20 @@ class UsuarioService {
         usuarios.each {us ->
             miembrosEncontrados += usuarioRepository.findByNombreUsuario(us.nombreUsuario)
         }
+        String[] users = []
+        usuarios.each {u -> users += u.nombreUsuario}
+        return getUsers(miembrosEncontrados as Usuario[], users)
+    }
+
+    Usuario[] getUsuarios(String[] usuarios) {
+        def miembrosEncontrados = []
+        usuarios.each {us ->
+            miembrosEncontrados += usuarioRepository.findByNombreUsuario(us)
+        }
+        return getUsers(miembrosEncontrados as Usuario[], usuarios)
+    }
+
+    private Usuario[] getUsers(Usuario[] miembrosEncontrados, String[] usuarios) {
         String[] faltantes = []
         if (miembrosEncontrados.size() != usuarios.size()) {
             miembrosEncontrados.each { m ->
@@ -67,7 +82,6 @@ class UsuarioService {
             logger.error("no se encontro los siguiente usuarios ${faltantes}")
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "no se encontro los siguiente usuarios ${faltantes}")
         }
-        return miembrosEncontrados
     }
 
 
@@ -81,9 +95,9 @@ class UsuarioService {
         return usuario_edit
     }
 
-    void borrarUsuario(String nombreUsuario, String contraseña) {
+    void borrarUsuario(String nombreUsuario, String contrasenia) {
         def user = getUsuario(nombreUsuario)
-        if (user.contrasenia != contraseña) {
+        if (user.contrasenia != contrasenia) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "usuario o contraseña invalida")
         }
         usuarioRepository.delete(user)

@@ -8,44 +8,33 @@ import java.time.LocalTime
 
 @Document("eventos")
 class Tarea extends Entity {
-    public String Nombre
-    public String Descripcion
-    public LocalTime HoraInicio
-    public LocalTime HoraFin
-    public String Asignado
-    public Estado Estado
-    public int Peso = 1
 
-    Tarea( nombre, horaInicio, horaFin, asignado, peso = 1) {
+    public String nombre
+    public String descripcion
+    public LocalTime horaInicio
+    public LocalTime horaFin
+    public String asignado
+    public Estado estado
+    public int peso = 1
+
+    Tarea( nombre, descripcion,horaInicio, horaFin, asignado, _id, peso = 1) {
         if (horaFin < horaInicio) {
-            //log
             throw new InvalidDateException()
         }
         if (peso < 0) {
-            //log
             throw new InvalidPesoException()
         }
-        Nombre = nombre
-        HoraInicio = horaInicio
-        HoraFin = horaFin
-        Asignado = asignado
-        Peso = peso
-        //Evento = evento
-        estado = Estado.Pendiente
+        this.nombre = nombre
+        this.horaInicio = horaInicio
+        this.descripcion = descripcion
+        this.horaFin = horaFin
+        this.asignado = asignado
+        this.peso = peso
+        this.estado = estado.Pendiente
+        super._id = _id
     }
 
-    String getAsignado(){
-        return this.Asignado
-    }
-    void setAsignado(String asignante, String asignado){
-//        if (asignante != this.Evento.Equipo.getLider()){
-//            throw new UsuarioNoEsLiderException()
-//        }
+    Tarea() {
 
-//        if (!Evento.Equipo.getMiembros().contains(asignado)){
-//            throw new UsuarioAsignadoNoEsMiembroDelEquipoException()
-//        }
-
-        this.Asignado = asignado
     }
 }
