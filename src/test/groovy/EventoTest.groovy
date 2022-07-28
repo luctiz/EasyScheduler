@@ -44,7 +44,7 @@ class EventoTest {
 
 
     @Test
-    void CrearEvento() {
+    void crearEvento() {
         Mockito.when(eventoRepository.save(evento)).thenReturn(evento)
         evento = eventoService.crearEvento(evento, usuario.nombreUsuario)
         Mockito.when(eventoRepository.findByNombreFecha(evento.nombreFecha)).thenReturn(evento)
@@ -54,14 +54,14 @@ class EventoTest {
     }
 
     @Test
-    void CrearEventoInvalido() {
+    void crearEventoInvalido() {
         GroovyAssert.shouldFail {
             evento = new Evento("evento", LocalDate.parse("2021-07-01"), equipo, ObjectId.get())
         }
     }
 
     @Test
-    void AgregarEventoAEquipoSiendoLiderEsValido(){
+    void agregarEventoAEquipoSiendoLiderEsValido(){
         def usuario2 = usuarioService.crearUsuario(new Usuario("user2", "sasd", ObjectId.get()))
         Usuario[] usuarios = [usuario, usuario2]
         Mockito.when(usuarioRepository.findByNombreUsuario(usuario2.nombreUsuario)).thenReturn(usuario2)
@@ -72,12 +72,10 @@ class EventoTest {
         Mockito.when(eventoRepository.save(evento2)).thenReturn(evento2)
         def evento_creado = eventoService.crearEvento(evento2, usuario.nombreUsuario)
         assert(evento_creado.nombre == evento2.nombre)
-
-
     }
 
     @Test
-    void AgregarEventoAEquipoSinSerLiderEsInvalido(){
+    void agregarEventoAEquipoSinSerLiderEsInvalido(){
         def usuario2 = usuarioService.crearUsuario(new Usuario("user22", "sasd", ObjectId.get()))
         Usuario[] usuarios = [usuario, usuario2]
         Mockito.when(usuarioRepository.findByNombreUsuario(usuario2.nombreUsuario)).thenReturn(usuario2)
