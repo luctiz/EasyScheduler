@@ -1,6 +1,7 @@
 package Servicios
 
 import Excepciones.TareaInvalidaException
+import Excepciones.UsuarioNoAsignadoATareaException
 import Modelos.Estado
 import Modelos.Evento
 import Modelos.Tarea
@@ -43,7 +44,8 @@ class TareaService extends ServiceBase {
         return evento
     }
 
-    void borrarTarea(Evento evento, Tarea tarea) {
+    void borrarTarea(String nombreFechaEvento, Tarea tarea) {
+        def evento = eventoService.getEvento(nombreFechaEvento)
         if (!evento.tareas.contains(tarea)) {
             logger.error("no existe tarea ${tarea.nombre} en el evento")
             throw new TareaInvalidaException("no existe tarea ${tarea.nombre} en el evento")
@@ -92,8 +94,11 @@ class TareaService extends ServiceBase {
         return evento
     }
 
-    Evento modificarEstado(String nombreFecha, String tarea, Estado estado) {
+    Evento modificarEstado(String nombreFecha, String tarea, Estado estado, String nombreUsuario) {
+        usuarioService.getUsuario(nombreUsuario)
         def evento = eventoService.getEvento(nombreFecha)
+        if (!evento.tareas.find {t -> t.asignado == nombreUsuario && t.nombre == tarea})
+            throw new UsuarioNoAsignadoATareaException()
         for (i in 0..<evento.tareas.size()) {
             if (evento.tareas[i].nombre == tarea)
                 evento.tareas[i].estado = estado

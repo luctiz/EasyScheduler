@@ -66,7 +66,7 @@ class EventoTest {
         Usuario[] usuarios = [usuario, usuario2]
         Mockito.when(usuarioRepository.findByNombreUsuario(usuario2.nombreUsuario)).thenReturn(usuario2)
         Mockito.when(usuarioRepository.saveAll(usuarios.toList())).thenReturn(usuarios.toList())
-        equipoService.agregarMiembro(equipo, usuario2.nombreUsuario)
+        equipoService.agregarMiembro(equipo.nombre, usuario2.nombreUsuario)
         Mockito.when(usuarioRepository.findByEquipos(equipo.nombre)).thenReturn(usuarios)
         def evento2 = new Evento("eventoequipo",LocalDate.now(), equipo.nombre, ObjectId.get())
         Mockito.when(eventoRepository.save(evento2)).thenReturn(evento2)
@@ -75,12 +75,12 @@ class EventoTest {
     }
 
     @Test
-    void agregarEventoAEquipoSinSerLiderEsInvalido(){
+    void agregarEventoAEquipoSinSerLiderEsInvalido() {
         def usuario2 = usuarioService.crearUsuario(new Usuario("user22", "sasd", ObjectId.get()))
         Usuario[] usuarios = [usuario, usuario2]
         Mockito.when(usuarioRepository.findByNombreUsuario(usuario2.nombreUsuario)).thenReturn(usuario2)
         Mockito.when(usuarioRepository.saveAll(usuarios.toList())).thenReturn(usuarios.toList())
-        equipoService.agregarMiembro(equipo, usuario2.nombreUsuario)
+        equipoService.agregarMiembro(equipo.nombre, usuario2.nombreUsuario)
         def fecha = LocalDate.now()
         GroovyAssert.shouldFail {
             def _evento = new Evento("eventoequipo", fecha, equipo, ObjectId.get())
@@ -88,41 +88,45 @@ class EventoTest {
         }
     }
 
-//    @Test
-//    void AgregarTareaAEvento() {
-//        evento.addTarea(
-//                1,
-//                "tarea1",
-//                new LocalTime(1,1,1,1),
-//                new LocalTime(2,1,1,1),
-//                new String(nombreUsuario: "user1",contraseña: "pass"),
-//                usuario
-//        )
-//        evento.tareas.size() == 1
-//    }
-//
-//    @Test
-//    void AgregarTareaInvalidaAEvento() {
-//        evento.addTarea(
-//                1,
-//                "tarea1",
-//                new LocalTime(1,1,1,1),
-//                new LocalTime(2,1,1,1),
-//                new String(nombreUsuario: "user1",contraseña: "pass"),
-//                usuario
-//        )
-//        GroovyAssert.shouldFail {
-//            evento.addTarea(
-//                    1,
-//                    "tarea1",
-//                    new LocalTime(1,1,1,1),
-//                    new LocalTime(2,1,1,1),
-//                    new String(nombreUsuario: "user1",contraseña: "pass"),
-//                    usuario
-//            )
-//        }
-//    }
-//
+    @Test
+    void getEventosByFechaOrEquipo() {
+        def evento2 = new Evento("evento2", LocalDate.now().atStartOfDay().plusDays(1).toLocalDate(), equipo.nombre, ObjectId.get())
+        def evento3 = new Evento("evento3", LocalDate.now().atStartOfDay().plusDays(2).toLocalDate(), equipo.nombre, ObjectId.get())
+        Mockito.when(eventoRepository.save(evento2)).thenReturn(evento2)
+        Mockito.when(eventoRepository.save(evento3)).thenReturn(evento3)
+        evento2 = eventoService.crearEvento(evento2, usuario.nombreUsuario)
+        evento3 = eventoService.crearEvento(evento3, usuario.nombreUsuario)
+        Mockito.when(eventoRepository.findByFechaBetween(evento.fecha, evento2.fecha)).thenReturn([evento, evento2] as Evento[])
+        def eventos = eventoService.getEventosByFechas(evento.fecha, evento2.fecha)
+        assert (eventos.contains(evento))
+        assert (eventos.contains(evento2))
+        assert (!eventos.contains(evento3))
+        Mockito.when(eventoRepository.findByEquipo(equipo.nombre)).thenReturn([evento, evento2, evento3] as Evento[])
+        def eventos2 = eventoService.getEventosByEquipo(evento.equipo)
+        assert (eventos2.contains(evento))
+        assert (eventos2.contains(evento2))
+        assert (eventos2.contains(evento3))
+    }
+
+    @Test
+    void getEventosByFechayEquipoOrNombre() {
+        def usuario2 = usuarioService.crearUsuario(new Usuario("user222", "sasd", ObjectId.get()))
+        def equipo2 = usuario2.equipos.first()
+        Mockito.when(usuarioRepository.findByNombreUsuario("user222")).thenReturn(usuario2)
+        Mockito.when(usuarioRepository.findByEquipos("${usuario2.nombreUsuario}_Privado")).thenReturn([usuario2] as Usuario[])
+        def evento2 = new Evento("evento22", LocalDate.now().atStartOfDay().plusDays(1).toLocalDate(), equipo2.nombre, ObjectId.get())
+        Mockito.when(eventoRepository.save(evento2)).thenReturn(evento2)
+        Mockito.when(eventoRepository.findByEquipoAndFechaBetween(equipo2.nombre, evento.fecha, evento2.fecha)).thenReturn([evento2] as Evento[])
+        def eventos = eventoService.getEventosByFechasAndEquipo(evento.fecha, evento2.fecha, equipo2.nombre)
+        assert (!eventos.contains(evento))
+        assert (eventos.contains(evento2))
+        Mockito.when(eventoRepository.findByNombreLike(evento.nombre)).thenReturn([evento, evento2] as Evento[])
+        def eventos2 = eventoService.getEventosByNombre(evento.nombre)
+        assert (eventos2.contains(evento))
+        assert (eventos2.contains(evento2))
+
+    }
+
 //    @Test
 //    void duplicarEventos() {
 //        evento.addTarea(

@@ -6,7 +6,6 @@ import Servicios.UsuarioService
 import groovy.test.GroovyAssert
 import org.bson.types.ObjectId
 import org.junit.jupiter.api.BeforeAll
-import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.mockito.Mockito
 
@@ -52,14 +51,13 @@ class EquipoTest {
     void agregarMiembroAEquipo() {
         usuario2.equipos = []
         Mockito.when(usuarioRepository.findByEquipos(equipo.nombre)).thenReturn(usuarios)
-        equipo = equipoService.agregarMiembro(equipo, usuario2.nombreUsuario)
+        usuarios = equipoService.agregarMiembro(equipo.nombre, usuario2.nombreUsuario)
         usuarios += usuario2
         users += usuario2.nombreUsuario
         Mockito.when(usuarioRepository.findByEquipos(equipo.nombre)).thenReturn(usuarios)
-        def miembros = equipoService.getMiembros(equipo.nombre)
-        assert(miembros.size() == 2)
-        assert(miembros.contains(usuario))
-        assert(miembros.contains(usuario2))
+        assert(usuarios.size() == 2)
+        assert(usuarios.contains(usuario))
+        assert(usuarios.contains(usuario2))
 
     }
 
@@ -67,7 +65,7 @@ class EquipoTest {
     void agregarMiembroYaExistenteFalla() {
         Mockito.when(usuarioRepository.findByEquipos(equipo.nombre)).thenReturn(usuarios)
         GroovyAssert.shouldFail {
-            equipoService.agregarMiembro(equipo, usuario.nombreUsuario)
+            equipoService.agregarMiembro(equipo.nombre, usuario.nombreUsuario)
         }
         usuarios = equipoService.getMiembros(equipo.nombre)
         assert(usuarios.size() == 2)
@@ -77,97 +75,18 @@ class EquipoTest {
 
     @Test
     void borrarMiembros() {
-        equipoService.agregarMiembro(equipo, usuario3.nombreUsuario)
+        Mockito.when(usuarioRepository.findByEquipos(equipo.nombre)).thenReturn(usuarios)
+        usuarios = equipoService.agregarMiembro(equipo.nombre, usuario3.nombreUsuario)
         usuarios += usuario3
         users += usuario3.nombreUsuario
+        usuarios = [usuario]
         Mockito.when(usuarioRepository.findByEquipos(equipo.nombre)).thenReturn(usuarios)
-        def usuarios =
-        Mockito.when(usuarioRepository.saveAll())
-        equipoService.removerEquipo(equipo.nombre, usuario.nombreUsuario, [usuario2.nombreUsuario, usuario3.nombreUsuario] as String[])
+        Mockito.when(usuarioRepository.saveAll(usuarios.toList())).thenReturn(usuarios.toList())
+        usuarios = equipoService.removerEquipo(equipo.nombre, usuario.nombreUsuario, [usuario2.nombreUsuario, usuario3.nombreUsuario] as String[])
+
+        assert(usuarios.size() == 1)
         GroovyAssert.shouldFail {
-            equipoService.removerEquipo(equipo.nombre, usuario.nombreUsuario, [usuario2.nombreUsuario] as String[])
+            equipoService.removerEquipo(equipo.nombre, usuario.nombreUsuario, [usuario.nombreUsuario] as String[])
         }
     }
-
-
-//
-//    @Test
-//    void AgregarTareaAEventoSinSerLiderEsInvalido(){
-//        def equipo = usuario.crearNuevoEquipo("trabajo")
-//        equipo.agregarMiembro(usuario2)
-//        def fecha = LocalDate.parse("2022-07-01")
-//        def evento = new Evento("eventoequipo", fecha, equipo, usuario)
-//
-//
-//        GroovyAssert.shouldFail {
-//            evento.addTarea(
-//                    1,
-//                    "tarea1",
-//                    LocalTime.parse('01:01:01.01'),
-//                    LocalTime.parse('02:01:01.01'),
-//                    usuario2,
-//                    usuario2
-//            )
-//        }
-//    }
-//
-//    @Test
-//    void AsignarTareaAMiembroSinSerLiderEsInvalido(){
-//        def equipo = usuario.crearNuevoEquipo("trabajo")
-//        equipo.agregarMiembro(usuario2)
-//        def fecha = LocalDate.parse("2022-07-01")
-//        def evento = new Evento("eventoequipo", fecha, equipo, usuario)
-//        def tarea = evento.addTarea(
-//                1,
-//                "tarea1",
-//                LocalTime.parse('01:01:01.01'),
-//                LocalTime.parse('02:01:01.01'),
-//                usuario,
-//                usuario
-//        )
-//
-//        GroovyAssert.shouldFail {
-//            tarea.setAsignado(usuario2,usuario2)
-//        }
-//    }
-//
-//    @Test
-//    void AsignarTareaANoMiembroDeEquipoSiendoLiderEsInvalido(){
-//        def equipo = usuario.crearNuevoEquipo("trabajo")
-//        equipo.agregarMiembro(usuario2)
-//        def fecha = LocalDate.parse("2022-07-01")
-//        def evento = new Evento("eventoequipo", fecha, equipo, usuario)
-//        def tarea = evento.addTarea(
-//                1,
-//                "tarea1",
-//                LocalTime.parse('01:01:01.01'),
-//                LocalTime.parse('02:01:01.01'),
-//                usuario,
-//                usuario
-//        )
-//
-//        GroovyAssert.shouldFail {
-//            tarea.setAsignado(usuario,usuario3)
-//        }
-//    }
-//
-//    @Test
-//    void AsignarTareaAMiembroDeEquipoSiendoLiderEsValido(){
-//        def equipo = usuario.crearNuevoEquipo("trabajo")
-//        equipo.agregarMiembro(usuario2)
-//        def fecha = LocalDate.parse("2022-07-01")
-//        def evento = new Evento("eventoequipo", fecha, equipo, usuario)
-//        def tarea = evento.addTarea(
-//                1,
-//                "tarea1",
-//                LocalTime.parse('01:01:01.01'),
-//                LocalTime.parse('02:01:01.01'),
-//                usuario,
-//                usuario
-//        )
-//
-//        tarea.setAsignado(usuario, usuario2)
-//        assert(tarea.getAsignado() == usuario2)
-//    }
-
 }

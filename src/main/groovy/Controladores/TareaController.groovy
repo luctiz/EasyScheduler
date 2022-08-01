@@ -45,26 +45,28 @@ class TareaController extends ApiControllerBase {
         return service.modificarEstado(nombreFechaEvento, tarea, Estado.values()[estado])
     }
 
-    @PutMapping("/tarea/borrarTarea")
+    @PutMapping("/tarea/borrarTarea/{nombreFechaEvento}")
     @ResponseStatus(HttpStatus.OK)
-    Evento borrarTarea(@RequestBody Evento evento, @RequestBody Tarea tarea) {
-        return service.borrarTarea(evento, tarea)
+    Evento borrarTarea(@PathVariable String nombreFechaEvento, @RequestBody Tarea tarea) {
+        if (nombreFechaEvento.isAllWhitespace())
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "")
+        return service.borrarTarea(nombreFechaEvento, tarea)
     }
 
-    @GetMapping("/tarea/getTareasByNombre/{nombre}&{evento}")
+    @GetMapping("/tarea/getTareasByNombre/{nombre}&{nombreFechaEvento}")
     @ResponseStatus(HttpStatus.OK)
-    Evento[] getTareasByNombre(@PathVariable String nombre, @PathVariable String evento) {
-        if (nombre.isAllWhitespace() || evento.isAllWhitespace())
+    Evento[] getTareasByNombre(@PathVariable String nombre, @PathVariable String nombreFechaEvento) {
+        if (nombre.isAllWhitespace() || nombreFechaEvento.isAllWhitespace())
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "")
-        return service.getTareasByNombre(nombre, evento)
+        return service.getTareasByNombre(nombre, nombreFechaEvento)
     }
 
-    @GetMapping("/tarea/getTareasByAsignado/{asignado}&{evento}")
+    @GetMapping("/tarea/getTareasByAsignado/{asignado}&{nombreFechaEvento}")
     @ResponseStatus(HttpStatus.OK)
-    Evento[] getTareasByAsignado(@PathVariable String asignado, @PathVariable String evento) {
-        if (asignado.isAllWhitespace() || evento.isAllWhitespace())
+    Evento[] getTareasByAsignado(@PathVariable String asignado, @PathVariable String nombreFechaEvento) {
+        if (asignado.isAllWhitespace() || nombreFechaEvento.isAllWhitespace())
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "")
-        return service.getTareasByAsignado(asignado, evento)
+        return service.getTareasByAsignado(asignado, nombreFechaEvento)
     }
 
 }

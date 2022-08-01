@@ -10,7 +10,6 @@ import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PatchMapping
 import org.springframework.web.bind.annotation.PathVariable
-import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.PutMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.ResponseStatus
@@ -52,12 +51,12 @@ class EquipoController extends ApiControllerBase {
         return service.crearEquipo(equipo, creador, miembros)
     }
 
-    @PatchMapping("/equipo/agregarMiembro/{nombreUsuario}")
+    @PatchMapping("/equipo/agregarMiembro/{equipo}&{nombreUsuario}")
     @ResponseStatus(HttpStatus.OK)
-    Equipo agregarMiembro(@RequestBody Equipo equipo, @PathVariable String nombreUsuario) {
-        if (!equipo || equipo.nombre.isAllWhitespace() || equipo.lider.isAllWhitespace())
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "el nombre de equipo/lider no puede ser vacio, o null")
-        return  service.agregarMiembro(equipo, nombreUsuario)
+    Usuario[] agregarMiembro(@PathVariable String equipo, @PathVariable String nombreUsuario) {
+        if (equipo.isAllWhitespace())
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "el nombre de equipo no puede ser vacio, o null")
+        return service.agregarMiembro(equipo, nombreUsuario)
     }
 
     @PatchMapping("/equipo/modificarEquipo/{nombreUsuario}")
@@ -70,7 +69,7 @@ class EquipoController extends ApiControllerBase {
 
     @PutMapping("/equipo/removerMiembro/{equipo}&{nombreUsuario}")
     @ResponseStatus(HttpStatus.OK)
-    Equipo removerMiembro(@PathVariable String equipo, @PathVariable String nombreUsuario, @RequestBody String[] miembrosARemover) {
+    Usuario[] removerMiembro(@PathVariable String equipo, @PathVariable String nombreUsuario, @RequestBody String[] miembrosARemover) {
         if (!equipo || equipo.isAllWhitespace())
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "el nombre de equipo/lider no puede ser vacio, o null")
         return  service.removerEquipo(equipo, nombreUsuario, miembrosARemover)

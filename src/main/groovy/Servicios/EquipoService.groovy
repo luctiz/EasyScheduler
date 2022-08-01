@@ -25,17 +25,17 @@ class EquipoService extends ServiceBase {
     private UsuarioService usuarioService
 
 
-    Equipo agregarMiembro(Equipo equipo, String nuevo_miembro) {
+    Usuario[] agregarMiembro(String name, String nuevo_miembro) {
         Usuario usuario = usuarioService.getUsuario(nuevo_miembro)
-        equipo = getEquipo(equipo.nombre)
-        if (usuario.equipos.find { e -> e.nombre == equipo.nombre}) {
-            logger.error("el usuario ${usuario.nombreUsuario} ya existe en ${equipo.nombre}")
+        def equipo = getEquipo(name)
+        if (usuario.equipos.find { e -> e.nombre == name}) {
+            logger.error("el usuario ${usuario.nombreUsuario} ya existe en ${name}")
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "el usuario ${usuario.nombreUsuario} ya existe en ${equipo.nombre}")
         }
-        logger.info("Se agrego ${usuario.nombreUsuario} al equipo ${equipo.nombre}")
+        logger.info("Se agrego ${usuario.nombreUsuario} al equipo ${name}")
         usuario.equipos += equipo
         usuarioRepository.save(usuario)
-        return equipo
+        return getMiembros(name)
     }
 
     Equipo crearEquipo(String nombre, String creador, String[] miembros) {
@@ -98,11 +98,13 @@ class EquipoService extends ServiceBase {
         return equipo
     }
 
-    Equipo removerEquipo(String equipo, String lider, String[] miembrosARemover) {
+    Usuario[] removerEquipo(String equipo, String lider, String[] miembrosARemover) {
         def eq = getEquipo(equipo)
         if (eq.lider != lider)
             throw new UsuarioNoEsLiderException("usuario ${lider} no es lider de ${equipo}")
         def miembros = getMiembros(equipo)
+        if (miembrosARemover.contains(lider))
+            throw new UsuarioNoEsLiderException("usuario ${lider} no puede ser removido")
         for (i in 0..< miembros.size()) {
             if (miembrosARemover.contains(miembros[i].nombreUsuario)) {
                 Equipo remover = miembros[i].equipos.find { e -> e.nombre == eq.nombre}
@@ -111,7 +113,7 @@ class EquipoService extends ServiceBase {
             }
         }
         usuarioRepository.saveAll(miembros.toList())
-        return eq
+        return getMiembros(equipo)
     }
 
     void borrarEquipo(String nombre, String lider) {

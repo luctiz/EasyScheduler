@@ -82,6 +82,7 @@ class UsuarioService {
             logger.error("no se encontro los siguiente usuarios ${faltantes}")
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "no se encontro los siguiente usuarios ${faltantes}")
         }
+        return miembrosEncontrados
     }
 
 
