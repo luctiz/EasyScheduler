@@ -3,11 +3,13 @@ package Controladores
 import Modelos.Equipo
 import Modelos.Usuario
 import Servicios.EquipoService
+import io.swagger.annotations.ResponseHeader
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpStatus
 import org.springframework.web.bind.annotation.CrossOrigin
 import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.ModelAttribute
 import org.springframework.web.bind.annotation.PatchMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PutMapping
@@ -16,10 +18,10 @@ import org.springframework.web.bind.annotation.ResponseStatus
 import org.springframework.web.bind.annotation.RestController
 import org.springframework.web.server.ResponseStatusException
 
-@CrossOrigin(origins = "*")
+import javax.servlet.http.HttpServletResponse
+
 @RestController
 class EquipoController extends ApiControllerBase {
-
     @Autowired
     private EquipoService service
 
@@ -36,6 +38,8 @@ class EquipoController extends ApiControllerBase {
     Usuario[] getMiembros(@PathVariable String nombre) {
         if (nombre.isAllWhitespace())
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "nombre no puede ser vacio")
+
+
         return service.getMiembros(nombre)
     }
 
