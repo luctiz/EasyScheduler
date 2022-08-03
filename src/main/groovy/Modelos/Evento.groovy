@@ -17,7 +17,7 @@ class Evento extends Entity {
     public String equipo
     public Tarea[] tareas = []
 
-    Evento(nombre, fecha, equipo, ObjectId _id) {
+    Evento(String nombre, LocalDate fecha, String equipo, ObjectId _id) {
         this.nombre = nombre
         if (fecha < LocalDate.now())
             throw new InvalidDateException()
@@ -30,17 +30,4 @@ class Evento extends Entity {
     Evento() {
 
     }
-
-//    Tarea addTarea(id, nombreTarea, horaInicio, horaFin, asignado, String creador, peso = 1) {
-//        if (creador != this.equipo) {
-//            // log
-//            throw new UsuarioNoEsLiderException()
-//        }
-//        def tarea = new Tarea(id, nombreTarea, horaInicio, horaFin, asignado, this, peso)
-//        if (tareas.any{x -> x.Id == tarea.Id}) {
-//            throw new TareaInvalidaException()
-//        }
-//        tareas += tarea
-//        return tarea
-//    }
 }

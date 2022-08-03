@@ -8,7 +8,7 @@ class Equipo extends Entity {
     public String nombre
     public String lider
 
-    Equipo(nombre, String creador, ObjectId _id) {
+    Equipo(String nombre, String creador, ObjectId _id) {
         this.nombre = nombre
         this.lider = creador
         super._id = _id

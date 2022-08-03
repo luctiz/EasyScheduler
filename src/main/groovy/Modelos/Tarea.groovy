@@ -2,6 +2,7 @@ package Modelos
 
 import Excepciones.InvalidDateException
 import Excepciones.InvalidPesoException
+import org.bson.types.ObjectId
 import org.springframework.data.mongodb.core.mapping.Document
 
 import java.time.LocalTime
@@ -17,7 +18,7 @@ class Tarea extends Entity {
     public Estado estado
     public int peso = 1
 
-    Tarea( nombre, descripcion,horaInicio, horaFin, asignado, _id, peso = 1) {
+    Tarea(String nombre, String descripcion, LocalTime horaInicio, LocalTime horaFin,  String asignado,  ObjectId _id, int peso = 1) {
         if (horaFin < horaInicio) {
             throw new InvalidDateException()
         }
