@@ -29,7 +29,7 @@ class EventoController extends ApiControllerBase {
 
     @PostMapping("/evento/{nombre}&{fecha}&{equipo}&{usuario}")
     @ResponseStatus(HttpStatus.CREATED)
-    Evento crearEvento(@PathVariable String nombre, @PathVariable LocalDate fecha, @PathVariable equipo, @PathVariable String usuario) {
+    Evento crearEvento(@PathVariable String nombre, @PathVariable LocalDate fecha, @PathVariable String equipo, @PathVariable String usuario) {
         if (nombre.isAllWhitespace() || equipo.isAllWhitespace() || usuario.isAllWhitespace()) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "")
         }
