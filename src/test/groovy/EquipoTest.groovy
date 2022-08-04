@@ -1,165 +1,92 @@
+import Modelos.Equipo
+import Modelos.Usuario
+import Repositorios.UsuarioRepository
+import Servicios.EquipoService
+import Servicios.UsuarioService
 import groovy.test.GroovyAssert
-import org.junit.jupiter.api.BeforeEach
+import org.bson.types.ObjectId
+import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
-import java.time.LocalDate
-import java.time.LocalTime
+import org.mockito.Mockito
 
 class EquipoTest {
-    def usuario
-    def usuario2
-    def usuario3
-    @BeforeEach
-    void setUp() {
-        usuario = new Usuario(nombreUsuario:  "user1", contraseña:  "pass")
-        usuario2 =new Usuario(nombreUsuario: "usuario2", contraseña: "123")
-        usuario3 =new Usuario(nombreUsuario: "usuario3", contraseña: "123")
+
+    private static UsuarioRepository usuarioRepository
+    private static EquipoService equipoService
+    private static UsuarioService usuarioService
+
+    private static usuario = new Usuario( "user12",  "pass", ObjectId.get())
+    private static usuario2 = new Usuario("usuario2", "123", ObjectId.get())
+    private static usuario3 = new Usuario("usuario3", "123", ObjectId.get())
+    private static Usuario[] usuarios = [usuario]
+    private static String[] users = [usuario.nombreUsuario]
+    private static equipo = new Equipo("equipo", usuario.nombreUsuario, ObjectId.get())
+
+    @BeforeAll
+    static void setUp() {
+        usuarioRepository = Mockito.mock(UsuarioRepository.class)
+        usuarioService = new UsuarioService(usuarioRepository:  usuarioRepository)
+        equipoService = new EquipoService(usuarioRepository: usuarioRepository, usuarioService: usuarioService)
+        Mockito.when(usuarioRepository.save(usuario)).thenReturn(usuario)
+        Mockito.when(usuarioRepository.save(usuario2)).thenReturn(usuario2)
+        Mockito.when(usuarioRepository.save(usuario3)).thenReturn(usuario3)
+        usuario = usuarioService.crearUsuario(usuario)
+        Mockito.when(usuarioRepository.findByNombreUsuario(usuario.nombreUsuario)).thenReturn(usuario)
+        usuario2 = usuarioService.crearUsuario(usuario2)
+        Mockito.when(usuarioRepository.findByNombreUsuario(usuario2.nombreUsuario)).thenReturn(usuario2)
+        usuario3 = usuarioService.crearUsuario(usuario3)
+        Mockito.when(usuarioRepository.findByNombreUsuario(usuario3.nombreUsuario)).thenReturn(usuario3)
+        Mockito.when(usuarioRepository.saveAll(usuarios.toList())).thenReturn(usuarios.toList())
+        equipo = equipoService.crearEquipo("equipo",usuario.nombreUsuario, users)
     }
 
 
     @Test
-    void CrearEquipoValido() {
-        def equipoNuevo = usuario.crearNuevoEquipo("trabajo")
-
-        assert(equipoNuevo.getNombre() == "trabajo")
-        assert(equipoNuevo.getMiembros().size() == 1)
-        assert(equipoNuevo.getLider() == usuario)
+    void crearEquipoValido() {
+        assert(equipo.nombre == "equipo")
+        assert(equipo.lider == usuario.nombreUsuario)
     }
 
     @Test
-    void AgregarMiembroAEquipo() {
-
-        def equipo = usuario.crearNuevoEquipo("trabajo")
-        equipo.agregarMiembro(usuario2)
-
-        assert(equipo.getMiembros().size() == 2)
-        assert(equipo.getMiembros().contains(usuario))
-        assert(equipo.getMiembros().contains(usuario2))
+    void agregarMiembroAEquipo() {
+        usuario2.equipos = []
+        Mockito.when(usuarioRepository.findByEquipos(equipo.nombre)).thenReturn(usuarios)
+        usuarios = equipoService.agregarMiembro(equipo.nombre, usuario2.nombreUsuario)
+        usuarios += usuario2
+        users += usuario2.nombreUsuario
+        Mockito.when(usuarioRepository.findByEquipos(equipo.nombre)).thenReturn(usuarios)
+        assert(usuarios.size() == 2)
+        assert(usuarios.contains(usuario))
+        assert(usuarios.contains(usuario2))
 
     }
 
     @Test
-    void AgregarMiembroYaExistenteFalla() {
-        def equipo = usuario.crearNuevoEquipo("trabajo")
+    void agregarMiembroYaExistenteFalla() {
+        Mockito.when(usuarioRepository.findByEquipos(equipo.nombre)).thenReturn(usuarios)
         GroovyAssert.shouldFail {
-            equipo.agregarMiembro(usuario)
+            equipoService.agregarMiembro(equipo.nombre, usuario.nombreUsuario)
         }
-        equipo.agregarMiembro(usuario2)
-        GroovyAssert.shouldFail {
-            equipo.agregarMiembro(usuario2)
-        }
-        assert(equipo.getMiembros().size() == 2)
-        assert(equipo.getMiembros().contains(usuario))
-        assert(equipo.getMiembros().contains(usuario2))
+        usuarios = equipoService.getMiembros(equipo.nombre)
+        assert(usuarios.size() == 2)
+        assert(usuarios.contains(usuario))
+        assert(usuarios.contains(usuario2))
     }
 
     @Test
-    void AgregarEventoAEquipoSiendoLiderEsValido(){
-        def equipo = usuario.crearNuevoEquipo("trabajo")
-        equipo.agregarMiembro(usuario2)
-        def fecha = new LocalDate(2022,07,01)
-        def evento = new Evento("eventoequipo",fecha,equipo,usuario)
+    void borrarMiembros() {
+        Mockito.when(usuarioRepository.findByEquipos(equipo.nombre)).thenReturn(usuarios)
+        usuarios = equipoService.agregarMiembro(equipo.nombre, usuario3.nombreUsuario)
+        usuarios += usuario3
+        users += usuario3.nombreUsuario
+        usuarios = [usuario]
+        Mockito.when(usuarioRepository.findByEquipos(equipo.nombre)).thenReturn(usuarios)
+        Mockito.when(usuarioRepository.saveAll(usuarios.toList())).thenReturn(usuarios.toList())
+        usuarios = equipoService.removerEquipo(equipo.nombre, usuario.nombreUsuario, [usuario2.nombreUsuario, usuario3.nombreUsuario] as String[])
 
-        evento.addTarea(
-                1,
-                "tarea1",
-                new LocalTime(1,1,1,1),
-                new LocalTime(2,1,1,1),
-                usuario,
-                usuario
-        )
-
-        assert(evento.getTareas().size() == 1)
-
-
-    }
-
-    @Test
-    void AgregarEventoAEquipoSinSerLiderEsInvalido(){
-        def equipo = usuario.crearNuevoEquipo("trabajo")
-        equipo.agregarMiembro(usuario2)
-        def fecha = new LocalDate(2022,07,01)
+        assert(usuarios.size() == 1)
         GroovyAssert.shouldFail {
-            def evento = new Evento("eventoequipo", fecha, equipo, usuario2)
-        }
-    }
-
-    @Test
-    void AgregarTareaAEventoSinSerLiderEsInvalido(){
-        def equipo = usuario.crearNuevoEquipo("trabajo")
-        equipo.agregarMiembro(usuario2)
-        def fecha = new LocalDate(2022,07,01)
-        def evento = new Evento("eventoequipo", fecha, equipo, usuario)
-
-
-        GroovyAssert.shouldFail {
-            evento.addTarea(
-                    1,
-                    "tarea1",
-                    new LocalTime(1,1,1,1),
-                    new LocalTime(2,1,1,1),
-                    usuario2,
-                    usuario2
-            )
+            equipoService.removerEquipo(equipo.nombre, usuario.nombreUsuario, [usuario.nombreUsuario] as String[])
         }
     }
-
-    @Test
-    void AsignarTareaAMiembroSinSerLiderEsInvalido(){
-        def equipo = usuario.crearNuevoEquipo("trabajo")
-        equipo.agregarMiembro(usuario2)
-        def fecha = new LocalDate(2022,07,01)
-        def evento = new Evento("eventoequipo", fecha, equipo, usuario)
-        def tarea = evento.addTarea(
-                1,
-                "tarea1",
-                new LocalTime(1,1,1,1),
-                new LocalTime(2,1,1,1),
-                usuario,
-                usuario
-        )
-
-        GroovyAssert.shouldFail {
-            tarea.setAsignado(usuario2,usuario2)
-        }
-    }
-
-    @Test
-    void AsignarTareaANoMiembroDeEquipoSiendoLiderEsInvalido(){
-        def equipo = usuario.crearNuevoEquipo("trabajo")
-        equipo.agregarMiembro(usuario2)
-        def fecha = new LocalDate(2022,07,01)
-        def evento = new Evento("eventoequipo", fecha, equipo, usuario)
-        def tarea = evento.addTarea(
-                1,
-                "tarea1",
-                new LocalTime(1,1,1,1),
-                new LocalTime(2,1,1,1),
-                usuario,
-                usuario
-        )
-
-        GroovyAssert.shouldFail {
-            tarea.setAsignado(usuario,usuario3)
-        }
-    }
-
-    @Test
-    void AsignarTareaAMiembroDeEquipoSiendoLiderEsValido(){
-        def equipo = usuario.crearNuevoEquipo("trabajo")
-        equipo.agregarMiembro(usuario2)
-        def fecha = new LocalDate(2022,07,01)
-        def evento = new Evento("eventoequipo", fecha, equipo, usuario)
-        def tarea = evento.addTarea(
-                1,
-                "tarea1",
-                new LocalTime(1,1,1,1),
-                new LocalTime(2,1,1,1),
-                usuario,
-                usuario
-        )
-
-        tarea.setAsignado(usuario, usuario2)
-        assert(tarea.getAsignado() == usuario2)
-    }
-
 }

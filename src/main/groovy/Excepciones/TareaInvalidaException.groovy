@@ -1,5 +1,11 @@
 package Excepciones
 
-class TareaInvalidaException extends Exception {
+import org.springframework.http.HttpStatus
+import org.springframework.web.server.ResponseStatusException
 
+class TareaInvalidaException extends ResponseStatusException {
+
+    TareaInvalidaException(HttpStatus status = HttpStatus.BAD_REQUEST, String reason) {
+        super(status, reason)
+    }
 }

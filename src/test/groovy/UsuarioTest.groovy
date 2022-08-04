@@ -1,41 +1,59 @@
-import groovy.test.NotYetImplemented
+import Modelos.Usuario
+
+import Repositorios.UsuarioRepository
+import Servicios.EquipoService
+import Servicios.UsuarioService
+import org.bson.types.ObjectId
+import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
-import groovy.test.GroovyAssert;
+import groovy.test.GroovyAssert
+import org.mockito.Mockito
+
+
 
 class UsuarioTest {
+    private static UsuarioRepository usuarioRepository
+    private static EquipoService equipoService
+    private static UsuarioService usuarioService
+
+
+    static usuario = new Usuario(
+            "usuario",
+            "123",
+            ObjectId.get()
+    )
+
+    @BeforeAll
+    static void setUp() {
+        usuarioRepository = Mockito.mock(UsuarioRepository.class)
+        usuarioService = new UsuarioService(usuarioRepository: usuarioRepository)
+        equipoService = new EquipoService(usuarioRepository:  usuarioRepository, usuarioService:  usuarioService)
+        Mockito.when(usuarioRepository.save(usuario)).thenReturn(usuario)
+        usuarioService.crearUsuario(usuario)
+    }
+
+
     @Test
     void CrearUsuarioValido() {
-        var usuario = new Usuario(
-            nombreUsuario: "usuario",
-            contraseña: "123"
-        )
-
-        assert(usuario.getNombreUsuario() == "usuario")
-        assert(usuario.getContraseña() == "123")
+        Mockito.when(usuarioRepository.findByNombreUsuario(usuario.nombreUsuario)).thenReturn(usuario)
+        def user = usuarioService.getUsuario(usuario.nombreUsuario)
+        assert(user.nombreUsuario == "usuario")
+        assert(user.contrasenia == "123")
+        assert(user.equipos.size() > 0)
     }
-    @NotYetImplemented
+
     @Test
     void CrearUsuarioNoValido() {
-        var usuario = new Usuario(
-                nombreUsuario: "usuario",
-                contraseña: "123"
-        )
+        Mockito.when(usuarioRepository.findByNombreUsuario(usuario.nombreUsuario)).thenReturn(usuario)
         GroovyAssert.shouldFail {
             var usuario2 = new Usuario(
-                    nombreUsuario: "usuario",
-                    contraseña: "123"
+                    "usuario",
+                    "123",
+                    ObjectId.get()
             )
-
+            usuarioService.crearUsuario(usuario2)
         }
 
     }
 
-    @Test
-    void UsuarioNuevoTieneEquipoPrivadoPersonal(){
-        var usuario = new Usuario(
-                nombreUsuario: "usuario",
-                contraseña: "123"
-        )
-        assert(usuario.getEquipoPrivado().getNombre() == "Privado")
-    }
 }
