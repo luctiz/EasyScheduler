@@ -47,14 +47,44 @@ class TareaService extends ServiceBase {
         return evento
     }
 
-    void borrarTarea(String nombreFechaEvento, Tarea tarea) {
-        def evento = eventoService.getEvento(nombreFechaEvento)
-        if (!evento.tareas.contains(tarea)) {
-            logger.error("no existe tarea ${tarea.nombre} en el evento")
-            throw new TareaInvalidaException("no existe tarea ${tarea.nombre} en el evento")
+    Evento agregarTareas(String nombreFecha, Tarea[] tareas) {
+        def evento = eventoService.getEvento(nombreFecha)
+        def eq = equipoService.getEquipo(evento.equipo)
+        evento.tareas.each { t ->
+            def remover = tareas.find { t2 -> t2.nombre == t.nombre}
+            tareas -= remover
         }
-        evento.tareas -= tarea
+        tareas.each { t ->
+            if (!usuarioService.getUsuario(t.asignado).equipos.find{ e -> e.nombre == eq.nombre}) {
+                logger.error("el asignado ${t.asignado} no pertenece al equipo ${evento.equipo} del evento ${evento.nombre}")
+                throw new TareaInvalidaException("el asignado ${t.asignado} no pertenece al equipo ${evento.equipo} del evento ${evento.nombre}")
+            }
+            evento.tareas += t
+        }
         eventoRepository.save(evento)
+        return evento
+    }
+
+    Evento borrarTarea(String nombreFechaEvento, String tarea) {
+        def evento = eventoService.getEvento(nombreFechaEvento)
+        def t = evento.tareas.find{t -> t.nombre == tarea}
+        if (!t) {
+            logger.error("no existe tarea ${tarea} en el evento")
+            throw new TareaInvalidaException("no existe tarea ${tarea} en el evento")
+        }
+        evento.tareas -= t
+        eventoRepository.save(evento)
+        return evento
+    }
+
+    Evento borrarTareas(String nombreFechaEvento, String[] tareas) {
+        def evento = eventoService.getEvento(nombreFechaEvento)
+        tareas.each { t ->
+            def remover = evento.tareas.find { t2 -> t2.nombre == t }
+            evento.tareas -= remover
+        }
+        eventoRepository.save(evento)
+        return evento
     }
 
     Evento[] getTareasByNombre(String nombre, String evento) {

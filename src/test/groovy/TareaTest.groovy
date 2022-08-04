@@ -27,8 +27,6 @@ class TareaTest {
     LocalTime horaInicio = LocalTime.parse("21:20:12.1")
     LocalTime horaFin = LocalTime.parse("22:20:13.1")
     LocalTime horaFin2 = LocalTime.parse("23:20:13.1")
-    LocalDate fecha = LocalDate.now()
-    LocalDate fecha2 = LocalDate.now()
     Usuario usuario = new Usuario(
             "user1",
             "pass",
@@ -137,7 +135,7 @@ class TareaTest {
     @Test
     void CrearTareaHoraInvalida() {
         GroovyAssert.shouldFail {
-            def t = new Tarea(
+            def _t = new Tarea(
                     "tarea",
                     "swax",
                     LocalTime.parse("22:20:13.1"),
@@ -145,7 +143,7 @@ class TareaTest {
                     usuario.nombreUsuario,
                     ObjectId.get()
             )
-            def t2 = new Tarea(
+            def _t2 = new Tarea(
                     "tarea",
                     "swax",
                     LocalTime.parse("22:20:13.1"),
@@ -197,6 +195,59 @@ class TareaTest {
 
     }
 
-    // TODO tests GET DELETE
+    @Test
+    void borrarTareas() {
+        Mockito.when(eventoRepository.save(evento)).thenReturn(evento)
+        evento = tareaService.agregarTareas(evento.nombreFecha, [tarea, tarea2] as Tarea[])
+        Mockito.when(eventoRepository.save(evento)).thenReturn(evento)
+        assert(evento.tareas.size() == 2)
+        evento = tareaService.borrarTareas(evento.nombreFecha, [tarea.nombre] as String[])
+        assert(evento.tareas.size() == 1)
+    }
 
+    @Test
+    void borrarTarea() {
+        Mockito.when(eventoRepository.save(evento)).thenReturn(evento)
+        evento = tareaService.agregarTareas(evento.nombreFecha, [tarea, tarea2] as Tarea[])
+        Mockito.when(eventoRepository.save(evento)).thenReturn(evento)
+        assert(evento.tareas.size() == 2)
+        evento = tareaService.borrarTarea(evento.nombreFecha, tarea.nombre)
+        assert(evento.tareas.size() == 1)
+    }
+
+    @Test
+    void borrarTareaCuandoNoEnEventoShouldFail() {
+        Mockito.when(eventoRepository.save(evento)).thenReturn(evento)
+        evento = tareaService.agregarTareas(evento.nombreFecha, [tarea, tarea2] as Tarea[])
+        Mockito.when(eventoRepository.save(evento)).thenReturn(evento)
+        assert(evento.tareas.size() == 2)
+        GroovyAssert.shouldFail {
+            evento = tareaService.borrarTarea(evento.nombreFecha, tarea3.nombre)
+        }
+    }
+
+    @Test
+    void getTareasByNombre() {
+        Mockito.when(eventoRepository.save(evento)).thenReturn(evento)
+        Mockito.when(eventoRepository.save(evento2)).thenReturn(evento2)
+        Mockito.when(eventoRepository.findByNombreFecha(evento2.nombreFecha)).thenReturn(evento2)
+        evento = tareaService.agregarTareas(evento.nombreFecha, [tarea, tarea2] as Tarea[])
+        evento2 = tareaService.agregarTareas(evento2.nombreFecha, [tarea, tarea2] as Tarea[])
+        Mockito.when(eventoRepository.findByNombreLike("evento")).thenReturn([evento, evento2] as Evento[])
+        def e = tareaService.getTareasByNombre(tarea.nombre, "evento")
+        assert (e.size() == 2)
+    }
+
+    @Test
+    void getTareasByAsignado() {
+        Mockito.when(eventoRepository.save(evento)).thenReturn(evento)
+        Mockito.when(eventoRepository.save(evento2)).thenReturn(evento2)
+        Mockito.when(eventoRepository.findByNombreFecha(evento2.nombreFecha)).thenReturn(evento2)
+        tarea2.asignado = usuario.nombreUsuario
+        evento = tareaService.agregarTareas(evento.nombreFecha, [tarea, tarea2] as Tarea[])
+        evento2 = tareaService.agregarTareas(evento2.nombreFecha, [tarea, tarea2] as Tarea[])
+        Mockito.when(eventoRepository.findByNombreLike("evento")).thenReturn([evento, evento2] as Evento[])
+        def e = tareaService.getTareasByAsignado(tarea.asignado, "evento")
+        assert (e.size() == 2)
+    }
 }

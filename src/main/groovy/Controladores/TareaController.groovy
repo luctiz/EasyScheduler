@@ -30,12 +30,21 @@ class TareaController extends ApiControllerBase {
         return service.agregarTarea(nombreFechaEvento, new Tarea(nombre, descripcion, horaInicio, horaFin, asignado, ObjectId.get(), peso.orElse(1)))
     }
 
+
     @PutMapping("/tarea/modificarTarea/{nombreFechaEvento}")
     @ResponseStatus(HttpStatus.OK)
     Evento modficarTareas(@PathVariable String nombreFechaEvento, @RequestBody Tarea[] tareas) {
         if (nombreFechaEvento.isAllWhitespace())
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "")
         return service.modficarTareas(nombreFechaEvento, tareas)
+    }
+
+    @PutMapping("/tarea/borrarTareas{nombreFechaEvento}")
+    @ResponseStatus(HttpStatus.OK)
+    Evento borrarTareas(@PathVariable String nombreFechaEvento, @RequestBody String[] tareas) {
+        if (nombreFechaEvento.isAllWhitespace())
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "")
+        return service.borrarTareas(nombreFechaEvento, tareas)
     }
 
     @PutMapping("/tarea/modificarEstado/{nombreFechaEvento}&{tarea}&{estado}&{usuario}")
@@ -48,12 +57,12 @@ class TareaController extends ApiControllerBase {
         return service.modificarEstado(nombreFechaEvento, tarea, Estado.values()[estado], usuario)
     }
 
-    @PutMapping("/tarea/borrarTarea/{nombreFechaEvento}")
+    @PutMapping("/tarea/borrarTarea/{nombreFechaEvento}&{nombre}")
     @ResponseStatus(HttpStatus.OK)
-    Evento borrarTarea(@PathVariable String nombreFechaEvento, @RequestBody Tarea tarea) {
-        if (nombreFechaEvento.isAllWhitespace())
+    Evento borrarTarea(@PathVariable String nombreFechaEvento, @PathVariable String nombre) {
+        if (nombreFechaEvento.isAllWhitespace() || nombre.isAllWhitespace())
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "")
-        return service.borrarTarea(nombreFechaEvento, tarea)
+        return service.borrarTarea(nombreFechaEvento, nombre)
     }
 
     @GetMapping("/tarea/getTareasByNombre/{nombre}&{nombreFechaEvento}")

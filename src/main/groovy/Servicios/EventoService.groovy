@@ -48,8 +48,12 @@ class EventoService extends ServiceBase {
         return ret
     }
 
-    void borrarEvento(String nombreFecha) {
+    void borrarEvento(String nombreFecha, String usuario) {
+        def user = usuarioService.getUsuario(usuario)
         def evento = getEvento(nombreFecha)
+        def equipo = equipoService.getEquipo(evento.equipo)
+        if (user.nombreUsuario != equipo.lider)
+            throw new UsuarioNoEsLiderException("el usuario ${usuario} debe ser lider de equipo ${equipo.nombre}, para borrar evento ${evento.nombre}")
         eventoRepository.delete(evento)
     }
 

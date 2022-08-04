@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.RestController
 import org.springframework.web.server.ResponseStatusException
 
 import javax.servlet.http.HttpServletResponse
+import javax.validation.Payload
 import java.time.LocalDate
 
 @RestController
@@ -45,21 +46,13 @@ class EventoController extends ApiControllerBase {
         return service.editarEvento(evento, usuario)
     }
 
-    @DeleteMapping("/evento/{nombreFecha}")
+    @DeleteMapping("/evento/{nombreFecha}&{usuario}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    void borrarEvento(@PathVariable String nombreFecha) {
-        if (!nombreFecha || nombreFecha.isAllWhitespace()) {
+    void borrarEvento(@PathVariable String nombreFecha, @PathVariable String usuario) {
+        if (!nombreFecha || nombreFecha.isAllWhitespace() || usuario.isAllWhitespace()) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "")
         }
-        service.borrarEvento(nombreFecha)
-    }
-
-    @GetMapping("/evento/nombre/{nombre}")
-    @ResponseStatus(HttpStatus.OK)
-    Evento getEvento(@PathVariable String nombre) {
-        if (nombre.isAllWhitespace())
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "")
-        return service.getEvento(nombre)
+        service.borrarEvento(nombreFecha, usuario)
     }
 
     @GetMapping("/evento/btfechas/{desde}&{hasta}")
@@ -100,4 +93,11 @@ class EventoController extends ApiControllerBase {
         return service.getEventosByNombre(nombre)
     }
 
+    @GetMapping("/evento/{nombreFecha}")
+    @ResponseStatus(HttpStatus.OK)
+    Evento getEvento(@PathVariable String nombreFecha) {
+        if (nombreFecha.isAllWhitespace())
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "")
+        return service.getEvento(nombreFecha)
+    }
 }

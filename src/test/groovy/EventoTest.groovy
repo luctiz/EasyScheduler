@@ -12,6 +12,7 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import groovy.test.GroovyAssert
 import org.mockito.Mockito
+import org.mockito.internal.configuration.injection.MockInjection
 
 import java.time.LocalDate
 
@@ -56,7 +57,7 @@ class EventoTest {
     @Test
     void crearEventoInvalido() {
         GroovyAssert.shouldFail {
-            evento = new Evento("evento", LocalDate.parse("2021-07-01"), equipo, ObjectId.get())
+            evento = new Evento("evento", LocalDate.parse("2021-07-01"), equipo.nombre, ObjectId.get())
         }
     }
 
@@ -83,7 +84,7 @@ class EventoTest {
         equipoService.agregarMiembro(equipo.nombre, usuario2.nombreUsuario)
         def fecha = LocalDate.now()
         GroovyAssert.shouldFail {
-            def _evento = new Evento("eventoequipo", fecha, equipo, ObjectId.get())
+            def _evento = new Evento("eventoequipo", fecha, equipo.nombre, ObjectId.get())
             eventoService.crearEvento(_evento, usuario2.nombreUsuario)
         }
     }
@@ -127,7 +128,48 @@ class EventoTest {
 
     }
 
-    //TODO delete
+    @Test
+    void borrarEvento() {
+        def evento2 = new Evento("evento2", LocalDate.now().atStartOfDay().plusDays(1).toLocalDate(), equipo.nombre, ObjectId.get())
+        def evento3 = new Evento("evento3", LocalDate.now().atStartOfDay().plusDays(2).toLocalDate(), equipo.nombre, ObjectId.get())
+        Mockito.when(eventoRepository.save(evento2)).thenReturn(evento2)
+        Mockito.when(eventoRepository.save(evento3)).thenReturn(evento3)
+        Mockito.when(eventoRepository.findByNombreFecha(evento.nombreFecha)).thenReturn(evento)
+        Mockito.when(eventoRepository.findByNombreFecha(evento2.nombreFecha)).thenReturn(evento2)
+        Mockito.when(eventoRepository.findByNombreFecha(evento3.nombreFecha)).thenReturn(evento3)
+        evento2 = eventoService.crearEvento(evento2, usuario.nombreUsuario)
+        evento3 = eventoService.crearEvento(evento3, usuario.nombreUsuario)
+        eventoService.borrarEvento(evento.nombreFecha, usuario.nombreUsuario)
+        eventoService.borrarEvento(evento2.nombreFecha, usuario.nombreUsuario)
+        eventoService.borrarEvento(evento3.nombreFecha, usuario.nombreUsuario)
+    }
+
+    @Test
+    void borrarEventoConUsuarioNoLiderShouldFail() {
+        def usuario2 = new Usuario("user3", "adsa", ObjectId.get())
+        Mockito.when(usuarioRepository.save(usuario2)).thenReturn(usuario2)
+        usuario2 = usuarioService.crearUsuario(usuario2)
+        Mockito.when(usuarioRepository.findByNombreUsuario(usuario2.nombreUsuario)).thenReturn(usuario2)
+        Mockito.when(usuarioRepository.findByEquipos(equipo.nombre)).thenReturn([usuario] as Usuario[])
+        Mockito.when(usuarioRepository.save(usuario2)).thenReturn(usuario2)
+        equipoService.agregarMiembro(equipo.nombre, usuario2.nombreUsuario)
+        Mockito.when(usuarioRepository.findByEquipos(equipo.nombre)).thenReturn([usuario, usuario2] as Usuario[])
+        def evento2 = new Evento("evento2", LocalDate.now().atStartOfDay().plusDays(1).toLocalDate(), equipo.nombre, ObjectId.get())
+        def evento3 = new Evento("evento3", LocalDate.now().atStartOfDay().plusDays(2).toLocalDate(), equipo.nombre, ObjectId.get())
+        Mockito.when(eventoRepository.save(evento2)).thenReturn(evento2)
+        Mockito.when(eventoRepository.save(evento3)).thenReturn(evento3)
+        Mockito.when(eventoRepository.findByNombreFecha(evento.nombreFecha)).thenReturn(evento)
+        Mockito.when(eventoRepository.findByNombreFecha(evento2.nombreFecha)).thenReturn(evento2)
+        Mockito.when(eventoRepository.findByNombreFecha(evento3.nombreFecha)).thenReturn(evento3)
+        evento = eventoService.crearEvento(evento, usuario.nombreUsuario)
+        evento2 = eventoService.crearEvento(evento2, usuario.nombreUsuario)
+        evento3 = eventoService.crearEvento(evento3, usuario.nombreUsuario)
+        GroovyAssert.shouldFail {
+            eventoService.borrarEvento(evento.nombreFecha, usuario2.nombreUsuario)
+            eventoService.borrarEvento(evento2.nombreFecha, usuario2.nombreUsuario)
+            eventoService.borrarEvento(evento3.nombreFecha, usuario2.nombreUsuario)
+        }
+    }
 
 //    @Test
 //    void duplicarEventos() {

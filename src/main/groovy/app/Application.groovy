@@ -28,11 +28,10 @@ import javax.servlet.FilterConfig
 import javax.servlet.ServletRequest
 import javax.servlet.ServletResponse
 
-import javax.servlet.FilterChain;
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import org.springframework.web.filter.OncePerRequestFilter;
+import javax.servlet.FilterChain
+import javax.servlet.ServletException
+import javax.servlet.http.HttpServletRequest
+import javax.servlet.http.HttpServletResponse
 
 @SpringBootApplication
 @ServletComponentScan
@@ -47,26 +46,26 @@ class Application {
 	}
 
 	@Component
-	public class ConfigCtrl implements Filter {
+	class ConfigCtrl implements Filter {
 
 		@Override
-		public void doFilter(ServletRequest req, ServletResponse res, FilterChain chain) throws IOException, ServletException {
-			final HttpServletResponse response = (HttpServletResponse) res;
-			response.setHeader("Access-Control-Allow-Origin", "*");
-			response.setHeader("Access-Control-Allow-Methods", "POST, PUT, GET, OPTIONS, DELETE, PATCH");
-			response.setHeader("Access-Control-Allow-Headers", "Authorization, Content-Type");
-			response.setHeader("Access-Control-Max-Age", "3600");
+		void doFilter(ServletRequest req, ServletResponse res, FilterChain chain) throws IOException, ServletException {
+			final HttpServletResponse response = (HttpServletResponse) res
+			response.setHeader("Access-Control-Allow-Origin", "*")
+			response.setHeader("Access-Control-Allow-Methods", "POST, PUT, GET, OPTIONS, DELETE, PATCH")
+			response.setHeader("Access-Control-Allow-Headers", "Authorization, Content-Type")
+			response.setHeader("Access-Control-Max-Age", "3600")
 			if ("OPTIONS".equalsIgnoreCase(((HttpServletRequest) req).getMethod())) {
-				response.setStatus(HttpServletResponse.SC_OK);
+				response.setStatus(HttpServletResponse.SC_OK)
 			} else {
-				chain.doFilter(req, res);
+				chain.doFilter(req, res)
 			}
 		}
 		@Override
-		public void destroy() {
+		void destroy() {
 		}
 		@Override
-		public void init(FilterConfig config) throws ServletException {
+		void init(FilterConfig config) throws ServletException {
 		}
 	}
 
