@@ -31,7 +31,7 @@ class Tarea extends Entity {
         this.horaFin = horaFin
         this.asignado = asignado
         this.peso = peso
-        this.estado = estado.Pendiente
+        this.estado = Estado.Pendiente
         super._id = _id
     }
 

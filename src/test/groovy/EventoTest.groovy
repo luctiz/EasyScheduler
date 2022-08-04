@@ -127,6 +127,8 @@ class EventoTest {
 
     }
 
+    //TODO delete
+
 //    @Test
 //    void duplicarEventos() {
 //        evento.addTarea(

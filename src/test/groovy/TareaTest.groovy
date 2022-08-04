@@ -13,7 +13,9 @@ import groovy.test.GroovyAssert
 import org.bson.types.ObjectId
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import org.mockito.Mock
 import org.mockito.Mockito
+import org.mockito.junit.jupiter.MockitoExtension
 
 import java.time.LocalDate
 import java.time.LocalTime
@@ -37,22 +39,10 @@ class TareaTest {
             "pass",
             ObjectId.get()
     )
-    Usuario usuario3  = new Usuario(
-        "user3",
-        "pass",
-        ObjectId.get()
-    )
-    Evento evento = new Evento(
-        "evento1",
-        LocalDate.now(),
-        equipo.nombre,
-        ObjectId.get()
-    )
-    Evento evento2 = new Evento(
-        "evento2",
-        LocalDate.now(),
-        equipo.nombre,
-        ObjectId.get()
+    Usuario usuario3 = new Usuario(
+            "user3",
+            "pass",
+            ObjectId.get()
     )
     Equipo equipo = new Equipo(
             "equipo",
@@ -64,8 +54,20 @@ class TareaTest {
             usuario3.nombreUsuario,
             ObjectId.get()
     )
+    Evento evento = new Evento(
+            "evento1",
+            LocalDate.now(),
+            equipo.nombre,
+            ObjectId.get()
+    )
+    Evento evento2 = new Evento(
+            "evento2",
+            LocalDate.now(),
+            equipo.nombre,
+            ObjectId.get()
+    )
     Tarea tarea = new Tarea(
-        "tarea1",
+            "tarea1",
             "desc1",
             horaInicio,
             horaFin,
@@ -93,8 +95,8 @@ class TareaTest {
     EventoRepository eventoRepository = Mockito.mock(EventoRepository.class)
     UsuarioService usuarioService = new UsuarioService(usuarioRepository: usuarioRepository)
     EquipoService equipoService = new EquipoService(usuarioRepository: usuarioRepository, usuarioService: usuarioService)
-    EventoService eventoService = new EventoService(usuarioService: usuarioService, eventoRepository: eventoRepository, equipoService:  equipoService)
-    TareaService tareaService = new TareaService(usuarioService: usuarioService, eventoRepository:  eventoRepository, equipoService:  equipoService, eventoService:  eventoService)
+    EventoService eventoService = new EventoService(usuarioService: usuarioService, eventoRepository: eventoRepository, equipoService: equipoService)
+    TareaService tareaService = new TareaService(usuarioService: usuarioService, eventoRepository: eventoRepository, equipoService: equipoService, eventoService: eventoService)
 
 
     @BeforeEach
@@ -121,204 +123,80 @@ class TareaTest {
         Mockito.when(eventoRepository.save(evento)).thenReturn(evento)
         evento = eventoService.crearEvento(evento, usuario.nombreUsuario)
         Mockito.when(eventoRepository.findByNombreFecha(evento.nombreFecha)).thenReturn(evento)
-
-
     }
 
 
     @Test
     void CrearTarea() {
-        def tarea = new Tarea(
-                1,
-                "tarea",
-                horaInicio,
-                horaIFin,
-                usuario
-        )
-        assert tarea.nombre == "tarea"
-        assert tarea.horaFin == horaIFin
-        assert tarea.horaInicio == horaInicio
-        assert tarea.peso == 1
-        assert tarea.estado == Estado.Pendiente
-
+        Mockito.when(eventoRepository.save(evento)).thenReturn(evento)
+        evento = tareaService.agregarTarea(evento.nombreFecha, tarea)
+        assert (evento.tareas.size() == 1)
+        assert (evento.tareas.first().nombre == tarea.nombre)
     }
 
     @Test
     void CrearTareaHoraInvalida() {
         GroovyAssert.shouldFail {
-            def tarea = new Tarea(
-                    1,
+            def t = new Tarea(
                     "tarea",
+                    "swax",
                     LocalTime.parse("22:20:13.1"),
                     LocalTime.parse("21:20:12.1"),
-                    usuario
+                    usuario.nombreUsuario,
+                    ObjectId.get()
             )
-        }
-    }
-
-    @Test
-    void CrearTareaPesoInvalido() {
-        GroovyAssert.shouldFail {
-            def tarea = new Tarea(
-                    1,
+            def t2 = new Tarea(
                     "tarea",
-                    horaInicio,
-                    horaIFin,
-                    usuario,
-                    - 1
+                    "swax",
+                    LocalTime.parse("22:20:13.1"),
+                    LocalTime.parse("21:20:12.1"),
+                    usuario.nombreUsuario,
+                    ObjectId.get(),
+                    -1
             )
         }
     }
 
     @Test
     void CompletarTareaAsignadaUsuario() {
-        def tarea = new Tarea(
-                1,
-                "tarea",
-                horaInicio,
-                horaIFin,
-                usuario,
-                evento
-        )
-        usuario.completarTarea(tarea)
-        assert(tarea.estado == Estado.Completado)
+        Mockito.when(eventoRepository.save(evento)).thenReturn(evento)
+        evento = tareaService.agregarTarea(evento.nombreFecha, tarea)
+        evento = tareaService.modificarEstado(evento.nombreFecha, tarea.nombre, Estado.Completado, usuario.nombreUsuario)
+        assert (tarea.estado == Estado.Completado)
     }
 
     @Test
     void CompletarTareaNoAsignadaEsInvalido() {
-        def usuario2 = new Usuario(
-                "user2",
-                "pass"
-        )
-        def tarea = new Tarea(
-                1,
-                "tarea",
-                horaInicio,
-                horaIFin,
-                usuario,
-                evento
-        )
+        Mockito.when(eventoRepository.save(evento)).thenReturn(evento)
+        evento = tareaService.agregarTarea(evento.nombreFecha, tarea)
         GroovyAssert.shouldFail {
-            usuario2.completarTarea(tarea)
-        }
-    }
-
-
-
-    @Test
-    void AgregarTareaAEventoSinSerLiderEsInvalido(){
-        def equipo = usuario.crearNuevoEquipo("trabajo")
-        equipo.agregarMiembro(usuario2)
-        def fecha = LocalDate.parse("2022-07-01")
-        def evento = new Evento("eventoequipo", fecha, equipo, usuario)
-
-
-        GroovyAssert.shouldFail {
-            evento.addTarea(
-                    1,
-                    "tarea1",
-                    LocalTime.parse('01:01:01.01'),
-                    LocalTime.parse('02:01:01.01'),
-                    usuario2,
-                    usuario2
-            )
+            evento = tareaService.modificarEstado(evento.nombreFecha, tarea.nombre, Estado.Completado, usuario2.nombreUsuario)
         }
     }
 
     @Test
-    void AsignarTareaAMiembroSinSerLiderEsInvalido(){
-        def equipo = usuario.crearNuevoEquipo("trabajo")
-        equipo.agregarMiembro(usuario2)
-        def fecha = LocalDate.parse("2022-07-01")
-        def evento = new Evento("eventoequipo", fecha, equipo, usuario)
-        def tarea = evento.addTarea(
-                1,
-                "tarea1",
-                LocalTime.parse('01:01:01.01'),
-                LocalTime.parse('02:01:01.01'),
-                usuario,
-                usuario
-        )
-
+    void ModificarTarea() {
+        Mockito.when(eventoRepository.save(evento)).thenReturn(evento)
+        evento = tareaService.agregarTarea(evento.nombreFecha, tarea)
+        tarea.asignado = "user2"
+        tarea.nombre = "nnn"
+        tarea.horaFin = LocalTime.parse("22:20:12.1")
+        tarea.horaInicio = LocalTime.parse("21:20:12.1")
+        tarea.descripcion = "dsdsa"
+        tarea.peso = 3
+        evento = tareaService.modficarTareas(evento.nombreFecha, [tarea] as Tarea[])
+        assert (evento.tareas.find { t -> t.nombre == tarea.nombre })
         GroovyAssert.shouldFail {
-            tarea.setAsignado(usuario2,usuario2)
+            tarea.asignado = "user3"
+            evento = tareaService.modficarTareas(evento.nombreFecha, [tarea] as Tarea[])
+            tarea.peso = -1
+            evento = tareaService.modficarTareas(evento.nombreFecha, [tarea] as Tarea[])
+            tarea.horaInicio = LocalTime.parse("23:20:12.1")
+            evento = tareaService.modficarTareas(evento.nombreFecha, [tarea] as Tarea[])
         }
+
     }
 
-    @Test
-    void AsignarTareaANoMiembroDeEquipoSiendoLiderEsInvalido(){
-        def equipo = usuario.crearNuevoEquipo("trabajo")
-        equipo.agregarMiembro(usuario2)
-        def fecha = LocalDate.parse("2022-07-01")
-        def evento = new Evento("eventoequipo", fecha, equipo, usuario)
-        def tarea = evento.addTarea(
-                1,
-                "tarea1",
-                LocalTime.parse('01:01:01.01'),
-                LocalTime.parse('02:01:01.01'),
-                usuario,
-                usuario
-        )
-
-        GroovyAssert.shouldFail {
-            tarea.setAsignado(usuario,usuario3)
-        }
-    }
-
-    @Test
-    void AsignarTareaAMiembroDeEquipoSiendoLiderEsValido(){
-        def equipo = usuario.crearNuevoEquipo("trabajo")
-        equipo.agregarMiembro(usuario2)
-        def fecha = LocalDate.parse("2022-07-01")
-        def evento = new Evento("eventoequipo", fecha, equipo, usuario)
-        def tarea = evento.addTarea(
-                1,
-                "tarea1",
-                LocalTime.parse('01:01:01.01'),
-                LocalTime.parse('02:01:01.01'),
-                usuario,
-                usuario
-        )
-
-        tarea.setAsignado(usuario, usuario2)
-        assert(tarea.getAsignado() == usuario2)
-    }
-
-
-    @Test
-    void AgregarTareaAEvento() {
-        evento.addTarea(
-                1,
-                "tarea1",
-                new LocalTime(1,1,1,1),
-                new LocalTime(2,1,1,1),
-                new String(nombreUsuario: "user1",contraseña: "pass"),
-                usuario
-        )
-        evento.tareas.size() == 1
-    }
-
-    @Test
-    void AgregarTareaInvalidaAEvento() {
-        evento.addTarea(
-                1,
-                "tarea1",
-                new LocalTime(1,1,1,1),
-                new LocalTime(2,1,1,1),
-                new String(nombreUsuario: "user1",contraseña: "pass"),
-                usuario
-        )
-        GroovyAssert.shouldFail {
-            evento.addTarea(
-                    1,
-                    "tarea1",
-                    new LocalTime(1,1,1,1),
-                    new LocalTime(2,1,1,1),
-                    new String(nombreUsuario: "user1",contraseña: "pass"),
-                    usuario
-            )
-        }
-    }
-
+    // TODO tests GET DELETE
 
 }

@@ -1,5 +1,7 @@
 package Servicios
 
+import Excepciones.InvalidDateException
+import Excepciones.InvalidPesoException
 import Excepciones.TareaInvalidaException
 import Excepciones.UsuarioNoAsignadoATareaException
 import Modelos.Estado
@@ -35,7 +37,8 @@ class TareaService extends ServiceBase {
             logger.error("ya existe tarea ${tarea.nombre} en el evento")
             throw new TareaInvalidaException("ya existe tarea ${tarea.nombre} en el evento")
         }
-        if (!usuarioService.getUsuario(tarea.asignado).equipos.contains(equipoService.getEquipo(evento.nombre))) {
+        def eq = equipoService.getEquipo(evento.equipo)
+        if (!usuarioService.getUsuario(tarea.asignado).equipos.find{ e -> e.nombre == eq.nombre}) {
             logger.error("el asignado ${tarea.asignado} no pertenece al equipo ${evento.equipo} del evento ${evento.nombre}")
             throw new TareaInvalidaException("el asignado ${tarea.asignado} no pertenece al equipo ${evento.equipo} del evento ${evento.nombre}")
         }
@@ -83,6 +86,8 @@ class TareaService extends ServiceBase {
         def evento = eventoService.getEvento(nombreFecha)
         for (i in 0..<evento.tareas.size()) {
             def tarea = tareas.find {t -> t._id == evento.tareas[i]._id}
+            if (!checkTarea(tarea, evento))
+                throw new TareaInvalidaException("${tarea.nombre} es invalida")
             evento.tareas[i].nombre = tarea.nombre
             evento.tareas[i].asignado = tarea.asignado
             evento.tareas[i].horaFin = tarea.horaFin
@@ -105,5 +110,16 @@ class TareaService extends ServiceBase {
         }
         eventoRepository.save(evento)
         return evento
+    }
+
+    private boolean checkTarea(Tarea tarea, Evento evento) {
+        def usuario = usuarioService.getUsuario(tarea.asignado)
+        if (!usuario.equipos.find {e -> e.nombre == evento.equipo})
+            return false
+        if (tarea.horaFin < tarea.horaInicio)
+            throw new InvalidDateException()
+        if (tarea.peso < 0)
+            throw new InvalidPesoException()
+        return true
     }
 }

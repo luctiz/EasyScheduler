@@ -23,7 +23,7 @@ class TareaController extends ApiControllerBase {
     @PutMapping("/tarea/{nombreFechaEvento}&{nombre}&{descripcion}&{horaInicio}&{horaFin}&{asignado}&{peso}")
     @ResponseStatus(HttpStatus.OK)
     Evento crearTarea(@PathVariable String nombreFechaEvento, @PathVariable String nombre, @PathVariable String descripcion,
-                      @PathVariable @DateTimeFormat(pattern = "hh:mm:ss a") LocalTime horaInicio, @PathVariable @DateTimeFormat(pattern = "hh:mm:ss a") LocalTime horaFin,
+                      @PathVariable @DateTimeFormat(pattern = "HH:mm:ss") LocalTime horaInicio, @PathVariable @DateTimeFormat(pattern = "HH:mm:ss") LocalTime horaFin,
                       @PathVariable String asignado, @PathVariable Optional<Integer> peso) {
         if (nombreFechaEvento.isAllWhitespace() || nombre.isAllWhitespace() || descripcion.isAllWhitespace() || asignado.isAllWhitespace())
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "")
