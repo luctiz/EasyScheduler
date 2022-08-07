@@ -115,8 +115,12 @@ class TareaService extends ServiceBase {
     Evento modficarTareas(String nombreFecha, Tarea[] tareas) {
         def evento = eventoService.getEvento(nombreFecha)
         for (i in 0..<evento.tareas.size()) {
-            def tarea = tareas.find {t -> t._id == evento.tareas[i]._id}
-            if (!checkTarea(tarea, evento))
+            def tarea = null
+            for (j in 0..<tareas.size()) {
+                if (tareas[j]._id.timestamp == evento.tareas[i]._id.timestamp)
+                    tarea = tareas[j]
+            }
+            if (!tarea || !checkTarea(tarea, evento))
                 throw new TareaInvalidaException("${tarea.nombre} es invalida")
             evento.tareas[i].nombre = tarea.nombre
             evento.tareas[i].asignado = tarea.asignado
@@ -151,5 +155,18 @@ class TareaService extends ServiceBase {
         if (tarea.peso < 0)
             throw new InvalidPesoException()
         return true
+    }
+
+    Evento modificarAsignado(String nombreFechaEvento, String nombre, String asignar) {
+        def evento = eventoService.getEvento(nombreFechaEvento)
+        for (i in 0..<evento.tareas.size()) {
+            if (evento.tareas[i].nombre == nombre) {
+                evento.tareas[i].asignado = asignar
+                if (!checkTarea(evento.tareas[i], evento))
+                    throw new TareaInvalidaException("${nombre} es invalida")
+            }
+        }
+        eventoRepository.save(evento)
+        return evento
     }
 }

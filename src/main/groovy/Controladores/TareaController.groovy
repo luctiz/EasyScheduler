@@ -39,6 +39,14 @@ class TareaController extends ApiControllerBase {
         return service.modficarTareas(nombreFechaEvento, tareas)
     }
 
+    @PutMapping("/tarea/modificarAsignado/{nombreFechaEvento}&{nombre}&{asignar}")
+    @ResponseStatus(HttpStatus.OK)
+    Evento modificarAsignado(@PathVariable String nombreFechaEvento, @PathVariable String nombre, @PathVariable String asignar) {
+        if (nombreFechaEvento.isAllWhitespace() || nombre.isAllWhitespace() || asignar.isAllWhitespace())
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "")
+        return service.modificarAsignado(nombreFechaEvento, nombre, asignar)
+    }
+
     @PutMapping("/tarea/borrarTareas{nombreFechaEvento}")
     @ResponseStatus(HttpStatus.OK)
     Evento borrarTareas(@PathVariable String nombreFechaEvento, @RequestBody String[] tareas) {
