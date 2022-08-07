@@ -70,7 +70,8 @@ class TareaTest {
             horaInicio,
             horaFin,
             usuario.nombreUsuario,
-            ObjectId.get()
+            ObjectId.get(),
+            5
     )
     Tarea tarea2 = new Tarea(
             "tarea2",
@@ -78,7 +79,8 @@ class TareaTest {
             horaInicio2,
             horaFin2,
             usuario2.nombreUsuario,
-            ObjectId.get()
+            ObjectId.get(),
+            4
     )
     Tarea tarea3 = new Tarea(
             "tarea3",
@@ -86,7 +88,8 @@ class TareaTest {
             horaInicio,
             horaFin,
             usuario3.nombreUsuario,
-            ObjectId.get()
+            ObjectId.get(),
+            3
     )
 
     UsuarioRepository usuarioRepository = Mockito.mock(UsuarioRepository.class)
@@ -249,5 +252,12 @@ class TareaTest {
         Mockito.when(eventoRepository.findByNombreLike("evento")).thenReturn([evento, evento2] as Evento[])
         def e = tareaService.getTareasByAsignado(tarea.asignado, "evento")
         assert (e.size() == 2)
+    }
+
+    @Test
+    void repartirTareas() {
+        Mockito.when(eventoRepository.save(evento)).thenReturn(evento)
+        evento = tareaService.agregarTareas(evento.nombreFecha, [tarea, tarea2] as Tarea[])
+        tareaService.repartirTareas(evento.nombreFecha, [usuario.nombreUsuario, usuario2.nombreUsuario] as String[])
     }
 }

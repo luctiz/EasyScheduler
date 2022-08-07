@@ -15,16 +15,16 @@ import java.time.LocalDate
 @Service
 class EventoService extends ServiceBase {
 
-    private static Logger logger = LoggerFactory.getLogger(EventoService.class)
+    protected static Logger logger = LoggerFactory.getLogger(EventoService.class)
 
     @Autowired
-    private EventoRepository eventoRepository
+    protected EventoRepository eventoRepository
 
     @Autowired
-    private UsuarioService usuarioService
+    protected UsuarioService usuarioService
 
     @Autowired
-    private EquipoService equipoService
+    protected EquipoService equipoService
 
     private verificarEvento(Evento evento, String usuario) {
         def team = equipoService.getEquipo(evento.equipo)

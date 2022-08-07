@@ -1,7 +1,5 @@
 package Modelos
 import Excepciones.InvalidDateException
-import Excepciones.TareaInvalidaException
-import Excepciones.UsuarioNoEsLiderException
 import org.bson.types.ObjectId
 import org.springframework.data.mongodb.core.mapping.Document
 

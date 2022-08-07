@@ -3,33 +3,37 @@ package Servicios
 import Excepciones.InvalidDateException
 import Excepciones.InvalidPesoException
 import Excepciones.TareaInvalidaException
+import Excepciones.UsuarioAsignadoNoEsMiembroDelEquipoException
 import Excepciones.UsuarioNoAsignadoATareaException
 import Modelos.Estado
 import Modelos.Evento
 import Modelos.Tarea
 import Repositorios.EventoRepository
+import org.bson.types.ObjectId
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
 
+import java.time.LocalDate
+
 
 @Service
 class TareaService extends ServiceBase {
 
-    private static Logger logger = LoggerFactory.getLogger(TareaService.class)
+    protected static Logger logger = LoggerFactory.getLogger(TareaService.class)
 
     @Autowired
-    private EventoRepository eventoRepository
+    protected EventoRepository eventoRepository
 
     @Autowired
-    private UsuarioService usuarioService
+    protected UsuarioService usuarioService
 
     @Autowired
-    private EquipoService equipoService
+    protected EquipoService equipoService
 
     @Autowired
-    private EventoService eventoService
+    protected EventoService eventoService
 
     Evento agregarTarea(String nombreFecha, Tarea tarea) {
         def evento = eventoService.getEvento(nombreFecha)
@@ -166,6 +170,28 @@ class TareaService extends ServiceBase {
                     throw new TareaInvalidaException("${nombre} es invalida")
             }
         }
+        eventoRepository.save(evento)
+        return evento
+    }
+
+    Evento duplicar(String nombreFecha, String asignar, String equipo, LocalDate fecha) {
+        def evento = this.eventoService.getEvento(nombreFecha)
+        def usuario = this.usuarioService.getUsuario(asignar)
+        if (!usuario.equipos.find { e -> e.nombre == equipo})
+            throw new UsuarioAsignadoNoEsMiembroDelEquipoException("el usuario ${asignar} no pertenece en el equipo ${equipo}")
+        def duplicado = new Evento(evento.nombre, fecha, equipo, ObjectId.get())
+        duplicado = this.eventoService.crearEvento(duplicado, asignar)
+        evento.tareas.each {t ->
+            duplicado = this.agregarTarea(duplicado.nombreFecha, new Tarea(t.nombre, t.descripcion, t.horaInicio, t.horaFin, asignar, ObjectId.get()))
+        }
+        return duplicado
+    }
+
+    Evento repartirTareas(String nombreFechaEvento, String[] asignarA) {
+        def evento = eventoService.getEvento(nombreFechaEvento)
+        def usuarios = usuarioService.getUsuarios(asignarA)
+        def tareas = evento.tareas
+        evento.tareas = TaskScheduler.scheduleTasks(evento, usuarios)
         eventoRepository.save(evento)
         return evento
     }

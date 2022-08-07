@@ -1,5 +1,6 @@
 package Controladores
 
+import Excepciones.UsuarioAsignadoNoEsMiembroDelEquipoException
 import Modelos.Estado
 import Modelos.Evento
 import Modelos.Tarea
@@ -17,6 +18,7 @@ import java.time.LocalTime
 
 @RestController
 class TareaController extends ApiControllerBase {
+
     @Autowired
     private TareaService service
 
@@ -87,6 +89,14 @@ class TareaController extends ApiControllerBase {
         if (asignado.isAllWhitespace() || nombreFechaEvento.isAllWhitespace())
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "")
         return service.getTareasByAsignado(asignado, nombreFechaEvento)
+    }
+
+    @PutMapping("/tarea/repartirTareas/{nombreFechaEvento}")
+    @ResponseStatus(HttpStatus.OK)
+    Evento repartirTareas(@PathVariable String nombreFechaEvento, @RequestBody String[] asignarA) {
+        if (asignarA.size() == 0 || nombreFechaEvento.isAllWhitespace())
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "")
+        return service.repartirTareas(nombreFechaEvento, asignarA)
     }
 
 }
