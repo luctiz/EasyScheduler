@@ -85,7 +85,7 @@ class EventoController extends ApiControllerBase {
         return service.getEventosByEquipo(equipo)
     }
 
-    @GetMapping("/evento/{nombre}")
+    @GetMapping("/evento/like/{nombre}")
     @ResponseStatus(HttpStatus.OK)
     Evento[] getEventosByNombre(@PathVariable String nombre) {
         if (nombre.isAllWhitespace())
