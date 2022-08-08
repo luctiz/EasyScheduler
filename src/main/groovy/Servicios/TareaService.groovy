@@ -190,8 +190,11 @@ class TareaService extends ServiceBase {
     Evento repartirTareas(String nombreFechaEvento, String[] asignarA) {
         def evento = eventoService.getEvento(nombreFechaEvento)
         def usuarios = usuarioService.getUsuarios(asignarA)
-        def tareas = evento.tareas
         evento.tareas = TaskScheduler.scheduleTasks(evento, usuarios)
+        evento.tareas.each { t ->
+            if (!checkTarea(t, evento))
+                throw new UsuarioAsignadoNoEsMiembroDelEquipoException("usuario a asignar no pertenece al equipo del evento ${nombreFechaEvento}")
+        }
         eventoRepository.save(evento)
         return evento
     }

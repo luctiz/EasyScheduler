@@ -42,6 +42,11 @@ class TareaTest {
             "pass",
             ObjectId.get()
     )
+    Usuario usuario4 = new Usuario(
+            "user4",
+            "pass",
+            ObjectId.get()
+    )
     Equipo equipo = new Equipo(
             "equipo",
             usuario.nombreUsuario,
@@ -111,9 +116,11 @@ class TareaTest {
         Mockito.when(usuarioRepository.findByNombreUsuario(usuario2.nombreUsuario)).thenReturn(usuario2)
         usuario3 = usuarioService.crearUsuario(usuario3)
         Mockito.when(usuarioRepository.findByNombreUsuario(usuario3.nombreUsuario)).thenReturn(usuario3)
-        def usuarios = [usuario2, usuario]
+        usuario4 = usuarioService.crearUsuario(usuario4)
+        Mockito.when(usuarioRepository.findByNombreUsuario(usuario4.nombreUsuario)).thenReturn(usuario4)
+        def usuarios = [usuario2, usuario, usuario4]
         Mockito.when(usuarioRepository.saveAll(usuarios)).thenReturn(usuarios)
-        equipo = equipoService.crearEquipo(equipo.nombre, equipo.lider, [usuario.nombreUsuario, usuario2.nombreUsuario] as String[])
+        equipo = equipoService.crearEquipo(equipo.nombre, equipo.lider, [usuario.nombreUsuario, usuario2.nombreUsuario, usuario4.nombreUsuario] as String[])
         usuario.equipos += equipo
         usuario2.equipos += equipo
         usuarios = [usuario3]
@@ -257,7 +264,92 @@ class TareaTest {
     @Test
     void repartirTareas() {
         Mockito.when(eventoRepository.save(evento)).thenReturn(evento)
-        evento = tareaService.agregarTareas(evento.nombreFecha, [tarea, tarea2] as Tarea[])
-        tareaService.repartirTareas(evento.nombreFecha, [usuario.nombreUsuario, usuario2.nombreUsuario] as String[])
+        Tarea tareaRepartir = new Tarea(
+                "tarea1",
+                "desc1",
+                LocalTime.parse("00:01:01"),
+                LocalTime.parse("01:01:01"),
+                usuario.nombreUsuario,
+                ObjectId.get(),
+                1
+        )
+        Tarea tareaRepartir2 = new Tarea(
+                "tarea2",
+                "desc1",
+                LocalTime.parse("01:01:01"),
+                LocalTime.parse("02:01:01"),
+                usuario2.nombreUsuario,
+                ObjectId.get(),
+                4
+        )
+        Tarea tareaRepartir3 = new Tarea(
+                "tarea3",
+                "desc1",
+                LocalTime.parse("02:01:01"),
+                LocalTime.parse("03:01:01"),
+                usuario4.nombreUsuario,
+                ObjectId.get(),
+                1
+        )
+        Tarea tareaRepartir4 = new Tarea(
+                "tarea4",
+                "desc1",
+                LocalTime.parse("01:01:01"),
+                LocalTime.parse("03:01:01"),
+                usuario4.nombreUsuario,
+                ObjectId.get(),
+                1
+        )
+        Tarea tareaRepartir5 = new Tarea(
+                "tarea5",
+                "desc1",
+                LocalTime.parse("00:01:01"),
+                LocalTime.parse("04:01:01"),
+                usuario2.nombreUsuario,
+                ObjectId.get(),
+                1
+        )
+        Tarea tareaRepartir6 = new Tarea(
+                "tarea6",
+                "desc1",
+                LocalTime.parse("10:01:01"),
+                LocalTime.parse("11:01:01"),
+                usuario4.nombreUsuario,
+                ObjectId.get(),
+                3
+        )
+        Tarea tareaRepartir7 = new Tarea(
+                "tarea7",
+                "desc1",
+                LocalTime.parse("02:01:01"),
+                LocalTime.parse("05:01:01"),
+                usuario.nombreUsuario,
+                ObjectId.get(),
+                5
+        )
+        Tarea tareaRepartir8 = new Tarea(
+                "tarea8",
+                "desc1",
+                LocalTime.parse("02:01:01"),
+                LocalTime.parse("07:01:01"),
+                usuario2.nombreUsuario,
+                ObjectId.get(),
+                2
+        )
+        Tarea tareaRepartir9 = new Tarea(
+                "tarea9",
+                "desc1",
+                LocalTime.parse("20:01:01"),
+                LocalTime.parse("21:01:01"),
+                usuario4.nombreUsuario,
+                ObjectId.get(),
+                2
+        )
+
+        def tareas = [tareaRepartir, tareaRepartir2, tareaRepartir3, tareaRepartir4, tareaRepartir5, tareaRepartir6, tareaRepartir7, tareaRepartir8, tareaRepartir9 ]
+        evento = tareaService.agregarTareas(evento.nombreFecha, tareas as Tarea[])
+        def users =  [usuario.nombreUsuario, usuario2.nombreUsuario, usuario4.nombreUsuario] as String[]
+        evento = tareaService.repartirTareas(evento.nombreFecha, users)
+        assert evento.tareas.size() == 9
     }
 }
