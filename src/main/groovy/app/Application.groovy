@@ -1,7 +1,10 @@
 package app
 
+import com.mongodb.ConnectionString
 import com.mongodb.client.MongoClient
 import com.mongodb.client.MongoClients
+import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.SpringApplication
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.web.servlet.ServletComponentScan
@@ -9,6 +12,7 @@ import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.ComponentScan
 import org.springframework.context.annotation.Configuration
 import org.springframework.core.annotation.Order
+import org.springframework.core.env.Environment
 import org.springframework.data.mongodb.core.MongoTemplate
 import org.springframework.data.mongodb.repository.config.EnableMongoRepositories
 import org.springframework.stereotype.Component
@@ -69,14 +73,17 @@ class Application {
 		}
 	}
 
+	@Autowired
+	private Environment environment;
+
 	@Bean
 	MongoClient mongoClient() {
-		return MongoClients.create("mongodb://localhost:27017")
+		return MongoClients.create(environment.getProperty("spring.data.mongodb.uri"))
 	}
 
 	@Bean
 	MongoTemplate mongoTemplate() {
-		return new MongoTemplate(mongoClient(), "EasyScheduler")
+		return new MongoTemplate(mongoClient(), environment.getProperty("spring.data.mongodb.database"))
 	}
 
 	@Bean
