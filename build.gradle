@@ -10,13 +10,14 @@ repositories {
 }
 
 
-//jar {
-//    manifest {
-//        attributes(
-//                'Main-Class': ''
-//        )
-//    }
-//}
+jar {
+    manifest {
+        attributes(
+                //'Class-Path': configurations.compile.collect { it.getName() }.join(' '),
+                'Main-Class': 'app.Application'
+        )
+    }
+}
 
 group 'org.example'
 version '1.0-SNAPSHOT'
