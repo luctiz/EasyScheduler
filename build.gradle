@@ -21,7 +21,7 @@ jar {
 
 group 'org.example'
 version '1.0-SNAPSHOT'
-sourceCompatibility = '15'
+sourceCompatibility = '11'
 
 application {
     mainClass = 'app.Application'
