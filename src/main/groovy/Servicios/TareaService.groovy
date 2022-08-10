@@ -182,7 +182,7 @@ class TareaService extends ServiceBase {
         def duplicado = new Evento(evento.nombre, fecha, equipo, ObjectId.get())
         duplicado = this.eventoService.crearEvento(duplicado, asignar)
         evento.tareas.each {t ->
-            duplicado = this.agregarTarea(duplicado.nombreFecha, new Tarea(t.nombre, t.descripcion, t.horaInicio, t.horaFin, asignar, ObjectId.get()))
+            duplicado = this.agregarTarea(duplicado.nombreFecha, new Tarea(t.nombre, t.descripcion, t.horaInicio, t.horaFin, asignar, ObjectId.get(), t.peso))
         }
         return duplicado
     }
